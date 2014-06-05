@@ -1,0 +1,20 @@
+{
+  "name": "iso-engine",
+  "version": "0.0.0",
+  "description": "Engine for rendering isometric maps.",
+  "scripts": {
+    "test": "jasmine-node spec/"
+  },
+  "keywords": [
+    "js",
+    "games",
+    "isometric"
+  ],
+  "author": "Erik S. Peterson <eriksalgstrom@gmail.com>",
+  "license": "GPLV2",
+  "dependencies": {
+    "jasmine-node": "^1.14.3",
+    "node.extend": "^1.0.10"
+  },
+  "private": true
+}
