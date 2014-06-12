@@ -3,15 +3,19 @@ var SAT = require('./SAT.min.js');
 var _ = require('lodash');
 var exports;
 
-var Character = function(name, sprite, x, y, w, h){
-    this.x = x;
-    this.y = y;
-    this.h = h;
-    this.w = w;
-    this.sprite = new Sprite(sprite, w, h);
-    this.state = "standing";
-    this.direction = "front";
-    this.ticker = 0;
+var Character = function(options){
+    this.initialize(options);
+};
+
+Character.prototype.initialize = function(options){
+  this.x = options.x || 0;
+  this.y = options.y || 0;
+  this.h = options.h;
+  this.w = options.w;
+  this.sprite = new Sprite(options.sprite, this.w, this.h);
+  this.state = "standing";
+  this.direction = "front";
+  this.ticker = 0;
 };
 
 
@@ -23,93 +27,89 @@ Character.prototype.render = function(ctx){
 
 Character.prototype.tick = function(blocks){
   if(this.state === 'walking'){
-    this.move(blocks)
+    this.move(blocks);
   }
   return (this.ticker === 3 ? this.ticker = 0 : this.ticker++);
 };
 
+Character.prototype.go = function (dir, desired, blocks){
+    var collisons,
+        exits = [],
+        box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
+
+    function testBox(block){
+      return SAT.testPolygonPolygon(box, block.box);
+    }
+
+    collisions = _.filter(blocks, function(block){
+      return SAT.testPolygonPolygon(box, block.box);
+    });
+
+    exits = _.filter(collisions, function(block){
+      return block.exit;
+    });
+
+    if(exits.length > 0){
+      return this.exit(exits[0]);
+    }
+
+
+    while(collisions.length > 0){
+      desired = reduceByOne(dir, desired);
+      box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
+      collisions = _.filter(collisions, testBox);
+    }
+
+    this.x = desired.x;
+    this.y = desired.y;
+};
+
+Character.prototype.exit = function(exit){
+  this.game.loadMap(exit.map);
+};
+
+function reduceByOne(dir, desired){
+  switch (dir){
+  case 'left':
+    desired.x = desired.x + 1;
+    break;
+  case 'right':
+    desired.x = desired.x - 1;
+    break;
+  case 'front':
+    desired.y = desired.y - 1;
+    break;
+  case 'back':
+    desired.y = desired.y + 1;
+    break;
+  }
+  return desired;
+}
 
 Character.prototype.move = function(blocks){
-  var newpos,
-      box,
-      collisions,
-      diff = (this.ticker % 2 === 0) ? 8: 16;
+  var diff = (this.ticker % 2 === 0) ? 8: 16;
 
     switch(this.direction){
     case 'left':
-          newpos = { x: this.x - diff, y: this.y };
-          box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + (this.h - 2)), this.w, 2).toPolygon();
-
-          collisions = _.filter(blocks, function(block){
-            return SAT.testPolygonPolygon(box, block.box);
-          });
-
-          while(collisions.length > 0){
-            newpos.x = newpos.x + 1;
-            box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-            collisions = _.filter(collisions, function(block){
-              return SAT.testPolygonPolygon(box, block.box);
-            });
-          }
+      this.go('left', { x: this.x - diff, y: this.y }, blocks);
       break;
     case 'front':
-      newpos = { x: this.x, y: this.y + diff };
-      box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-
-      collisions = _.filter(blocks, function(block){
-        return SAT.testPolygonPolygon(box, block.box);
-      });
-
-      while(collisions.length > 0){
-        newpos.y = newpos.y - 1;
-        box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-        collisions = _.filter(collisions, function(block){
-          return SAT.testPolygonPolygon(box, block.box);
-        });
-      }
+      this.go('front', { x: this.x, y: this.y + diff }, blocks);
       break;
     case 'right':
-      newpos = { x: this.x + diff, y: this.y };
-      box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-
-      collisions = _.filter(blocks, function(block){
-        return SAT.testPolygonPolygon(box, block.box);
-      });
-
-      while(collisions.length > 0){
-        newpos.x = newpos.x - 1;
-        box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-        collisions = _.filter(collisions, function(block){
-          return SAT.testPolygonPolygon(box, block.box);
-        });
-      }
+      this.go('right', { x: this.x + diff, y: this.y }, blocks);
       break;
     case 'back':
-      newpos = { x: this.x, y: this.y - diff };
-      box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-
-      collisions = _.filter(blocks, function(block){
-        return SAT.testPolygonPolygon(box, block.box);
-      });
-
-      while(collisions.length > 0){
-        newpos.y = newpos.y + 1;
-        box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-        collisions = _.filter(collisions, function(block){
-          return SAT.testPolygonPolygon(box, block.box);
-        });
-      }
+      this.go('back', { x: this.x, y: this.y - diff }, blocks);
       break;
     }
-    this.x = newpos.x;
-    this.y = newpos.y;
 };
 
 
 
 Character.prototype.getSpriteState = function(){
   if(this.state === 'standing'){
-    return this.sprite.standing[this.direction]
+    return this.sprite.standing[this.direction];
   }
     return this.sprite.walking[this.direction][this.ticker];
 };

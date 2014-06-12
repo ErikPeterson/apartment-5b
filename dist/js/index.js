@@ -19,15 +19,19 @@ var SAT = require('./SAT.min.js');
 var _ = require('lodash');
 var exports;
 
-var Character = function(name, sprite, x, y, w, h){
-    this.x = x;
-    this.y = y;
-    this.h = h;
-    this.w = w;
-    this.sprite = new Sprite(sprite, w, h);
-    this.state = "standing";
-    this.direction = "front";
-    this.ticker = 0;
+var Character = function(options){
+    this.initialize(options);
+};
+
+Character.prototype.initialize = function(options){
+  this.x = options.x || 0;
+  this.y = options.y || 0;
+  this.h = options.h;
+  this.w = options.w;
+  this.sprite = new Sprite(options.sprite, this.w, this.h);
+  this.state = "standing";
+  this.direction = "front";
+  this.ticker = 0;
 };
 
 
@@ -39,93 +43,89 @@ Character.prototype.render = function(ctx){
 
 Character.prototype.tick = function(blocks){
   if(this.state === 'walking'){
-    this.move(blocks)
+    this.move(blocks);
   }
   return (this.ticker === 3 ? this.ticker = 0 : this.ticker++);
 };
 
+Character.prototype.go = function (dir, desired, blocks){
+    var collisons,
+        exits = [],
+        box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
+
+    function testBox(block){
+      return SAT.testPolygonPolygon(box, block.box);
+    }
+
+    collisions = _.filter(blocks, function(block){
+      return SAT.testPolygonPolygon(box, block.box);
+    });
+
+    exits = _.filter(collisions, function(block){
+      return block.exit;
+    });
+
+    if(exits.length > 0){
+      return this.exit(exits[0]);
+    }
+
+
+    while(collisions.length > 0){
+      desired = reduceByOne(dir, desired);
+      box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
+      collisions = _.filter(collisions, testBox);
+    }
+
+    this.x = desired.x;
+    this.y = desired.y;
+};
+
+Character.prototype.exit = function(exit){
+  this.game.loadMap(exit.map);
+};
+
+function reduceByOne(dir, desired){
+  switch (dir){
+  case 'left':
+    desired.x = desired.x + 1;
+    break;
+  case 'right':
+    desired.x = desired.x - 1;
+    break;
+  case 'front':
+    desired.y = desired.y - 1;
+    break;
+  case 'back':
+    desired.y = desired.y + 1;
+    break;
+  }
+  return desired;
+}
 
 Character.prototype.move = function(blocks){
-  var newpos,
-      box,
-      collisions,
-      diff = (this.ticker % 2 === 0) ? 8: 16;
+  var diff = (this.ticker % 2 === 0) ? 8: 16;
 
     switch(this.direction){
     case 'left':
-          newpos = { x: this.x - diff, y: this.y };
-          box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + (this.h - 2)), this.w, 2).toPolygon();
-
-          collisions = _.filter(blocks, function(block){
-            return SAT.testPolygonPolygon(box, block.box);
-          });
-
-          while(collisions.length > 0){
-            newpos.x = newpos.x + 1;
-            box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-            collisions = _.filter(collisions, function(block){
-              return SAT.testPolygonPolygon(box, block.box);
-            });
-          }
+      this.go('left', { x: this.x - diff, y: this.y }, blocks);
       break;
     case 'front':
-      newpos = { x: this.x, y: this.y + diff };
-      box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-
-      collisions = _.filter(blocks, function(block){
-        return SAT.testPolygonPolygon(box, block.box);
-      });
-
-      while(collisions.length > 0){
-        newpos.y = newpos.y - 1;
-        box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-        collisions = _.filter(collisions, function(block){
-          return SAT.testPolygonPolygon(box, block.box);
-        });
-      }
+      this.go('front', { x: this.x, y: this.y + diff }, blocks);
       break;
     case 'right':
-      newpos = { x: this.x + diff, y: this.y };
-      box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-
-      collisions = _.filter(blocks, function(block){
-        return SAT.testPolygonPolygon(box, block.box);
-      });
-
-      while(collisions.length > 0){
-        newpos.x = newpos.x - 1;
-        box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-        collisions = _.filter(collisions, function(block){
-          return SAT.testPolygonPolygon(box, block.box);
-        });
-      }
+      this.go('right', { x: this.x + diff, y: this.y }, blocks);
       break;
     case 'back':
-      newpos = { x: this.x, y: this.y - diff };
-      box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-
-      collisions = _.filter(blocks, function(block){
-        return SAT.testPolygonPolygon(box, block.box);
-      });
-
-      while(collisions.length > 0){
-        newpos.y = newpos.y + 1;
-        box = new SAT.Box(new SAT.Vector(newpos.x, newpos.y + this.h - 2), this.w, 2).toPolygon();
-        collisions = _.filter(collisions, function(block){
-          return SAT.testPolygonPolygon(box, block.box);
-        });
-      }
+      this.go('back', { x: this.x, y: this.y - diff }, blocks);
       break;
     }
-    this.x = newpos.x;
-    this.y = newpos.y;
 };
 
 
 
 Character.prototype.getSpriteState = function(){
   if(this.state === 'standing'){
-    return this.sprite.standing[this.direction]
+    return this.sprite.standing[this.direction];
   }
     return this.sprite.walking[this.direction][this.ticker];
 };
@@ -149,24 +149,32 @@ module.exports = exports = createImage;
 
 },{}],4:[function(require,module,exports){
 var keypress = require('./keypress');
+var Character = require('./character');
+var Map = require('./map');
 
-Game = function(map, character){
-  var body = document.getElementsByTagName('body')[0],
-      el = document.createElement('canvas');
-
-      this.canvas = body.appendChild(el);
-
-      this.canvas.setAttribute('id','canvas');
-      this.canvas.setAttribute('width', map.width);
-      this.canvas.setAttribute('height', map.height);
-      this.targetFps = 10;
-      this.ctx = canvas.getContext('2d');
-      this.map = map;
-      this.character = character;
-      this.bindKeys();
-      this.clearCanvas();
+Game = function(element, character){
+  this.initialize(element, character);
 };
 
+Game.prototype.initialize = function(element, character){
+  this.container = document.getElementById(element);
+  this.canvas = this.container.appendChild(document.createElement('canvas'));
+  this.canvas.setAttribute('id','canvas');
+  this.targetFps = 10;
+  this.ctx = canvas.getContext('2d');
+  this.character = new Character(character);
+  this.character.game = this;
+};
+
+Game.prototype.loadMap = function (map, startpos){
+  this.clearCanvas();
+  this.map = new Map(map);
+  this.canvas.setAttribute('width', this.map.width);
+  this.canvas.setAttribute('height', this.map.height);
+  this.character.x = startpos.x;
+  this.character.y = startpos.y;
+  this.bindKeys();
+};
 
 Game.prototype.clearCanvas = function(){
     this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
@@ -236,7 +244,7 @@ Game.prototype.bindKeys = function(){
 
 module.exports = exports = Game;
 
-},{"./keypress":5}],5:[function(require,module,exports){
+},{"./character":2,"./keypress":5,"./map":6}],5:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1291,29 +1299,24 @@ return keypress;
 var _ = require('lodash');
 var createImage = require('./createImage');
 var SAT = require('./SAT.min');
-var exports;
 
-var Map = function(image, w, h, objs, blocks){
-  this.initialize(image, w, h, objs, blocks);
-}
+var Map = function(options){
+  this.initialize(options);
+};
 
-Map.prototype.initialize = function(image, w, h, objs, blocks){
-  this.width = w;
-  this.height = h;
-  this.image = createImage(image);
-  this.objs = this.loadObjects(objs);
-  this.blocks = this.makeBoxes(blocks);
-}
-
-Map.prototype.collision = function(box){
-   return intersect(box, this.blocks);
+Map.prototype.initialize = function(options){
+  this.width = options.w;
+  this.height = options.h;
+  this.image = createImage(options.image);
+  this.objs = this.loadObjects(options.objs);
+  this.blocks = this.makeBoxes(options.blocks);
 };
 
 Map.prototype.makeBoxes = function(blocks){
   return _.map(blocks, function(el){
     el.points = _.map(el.points, function(point){
       return new SAT.Vector(point.x, point.y);
-    })
+    });
     el.box = new SAT.Polygon(new SAT.Vector(el.offset.x, el.offset.y), el.points);
     return el;
   }, this);
@@ -1324,7 +1327,7 @@ Map.prototype.loadObjects = function(objs){
     el.image = createImage(el.image);
     return el;
   }, this);
-  return _.sortBy(Objs, function(el){return el.cutoff});
+  return _.sortBy(Objs, function(el){return el.cutoff;});
 };
 
 Map.prototype.render = function(character, ctx){
@@ -1351,25 +1354,27 @@ Map.prototype.render = function(character, ctx){
 module.exports = exports = Map;
 
 },{"./SAT.min":1,"./createImage":3,"lodash":9}],7:[function(require,module,exports){
-var Character = require('./character.js');
-var Map = require('./map.js');
 var Game = require('./game.js');
 
 var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
     objs = [bed],
     wall1 = {offset: {x: 315, y: 0}, points: [{x: 0, y: 0}, {x: -315, y: 0}, {x:-315,y: 414}, {x:0, y: 257}]},
     wall2 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 315, y: 257}, {x:630,y: 414}, {x:630, y: 0}]},
-    wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 0, y: 570},{x: 315, y: 570}]},
-    wall4 = {offset: {x: 0, y: 0}, points: [{x: 630, y: 414}, {x: 315, y: 570},{x: 630, y: 570}]}
-    bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]};
+    wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 12, y: 510}, {x: 104, y: 464}]},
+    wall4 = {offset: {x: 0, y: 0}, points: [{x: 210, y: 517}, {x: 116, y: 564}, {x: 315, y: 570}]},
+    wall5 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 570}, {x: 630, y: 570}, {x: 630, y: 414}]},
+    exit = {exit: true, offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
+    bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]},
+    blocks = [wall1, wall2, wall3, wall4, wall5, bedblock, exit];
 
-var m = new Map('assets/room1.gif', 630, 570, objs, [wall1, wall2, wall3, wall4, bedblock]);
-var k = new Character('kramer', 'assets/kramer-sprite.gif', 283, 250, 64, 128);
-var g = new Game(m, k);
+var map = {image: 'assets/room1.gif', w: 630, h: 570, objs: objs, blocks: blocks};
+var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
 
+var g = new Game('game', kramer);
+g.loadMap(map, {x: 250, y: 250});
 g.start();
 
-},{"./character.js":2,"./game.js":4,"./map.js":6}],8:[function(require,module,exports){
+},{"./game.js":4}],8:[function(require,module,exports){
 var exports;
 var createImage = require('./createImage');
 

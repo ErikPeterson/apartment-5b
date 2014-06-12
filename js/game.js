@@ -1,22 +1,30 @@
 var keypress = require('./keypress');
+var Character = require('./character');
+var Map = require('./map');
 
-Game = function(map, character){
-  var body = document.getElementsByTagName('body')[0],
-      el = document.createElement('canvas');
-
-      this.canvas = body.appendChild(el);
-
-      this.canvas.setAttribute('id','canvas');
-      this.canvas.setAttribute('width', map.width);
-      this.canvas.setAttribute('height', map.height);
-      this.targetFps = 10;
-      this.ctx = canvas.getContext('2d');
-      this.map = map;
-      this.character = character;
-      this.bindKeys();
-      this.clearCanvas();
+Game = function(element, character){
+  this.initialize(element, character);
 };
 
+Game.prototype.initialize = function(element, character){
+  this.container = document.getElementById(element);
+  this.canvas = this.container.appendChild(document.createElement('canvas'));
+  this.canvas.setAttribute('id','canvas');
+  this.targetFps = 10;
+  this.ctx = canvas.getContext('2d');
+  this.character = new Character(character);
+  this.character.game = this;
+};
+
+Game.prototype.loadMap = function (map, startpos){
+  this.clearCanvas();
+  this.map = new Map(map);
+  this.canvas.setAttribute('width', this.map.width);
+  this.canvas.setAttribute('height', this.map.height);
+  this.character.x = startpos.x;
+  this.character.y = startpos.y;
+  this.bindKeys();
+};
 
 Game.prototype.clearCanvas = function(){
     this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
