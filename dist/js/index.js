@@ -1371,7 +1371,7 @@ var map = {image: 'assets/room1.gif', w: 630, h: 570, objs: objs, blocks: blocks
 var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
 
 var g = new Game('game', kramer);
-g.loadMap(map, {x: 250, y: 250});
+g.loadMap(map, {x: 260, y: 250});
 g.start();
 
 },{"./game.js":4}],8:[function(require,module,exports){

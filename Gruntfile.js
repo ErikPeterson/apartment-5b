@@ -33,12 +33,24 @@ module.exports = function(grunt){
           ext: '.css'
         }]
       }
-    }
+    },
+    watch: {
+      scripts: {
+        files:'./js/*.js',
+        tasks: ['browserify']
+      },
+      css: {
+        files: './sass/*.scss',
+        tasks: ['sass']
+      }
+      }
   });
 
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+
   grunt.registerTask('default', ['browserify', 'copy', 'sass']);
 
 };
