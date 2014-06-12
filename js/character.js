@@ -87,7 +87,7 @@ function reduceByOne(dir, desired){
 }
 
 Character.prototype.move = function(blocks){
-  var diff = (this.ticker % 2 === 0) ? 8: 16;
+  var diff = (this.ticker % 2 === 0) ? 24 : 16;
 
     switch(this.direction){
     case 'left':

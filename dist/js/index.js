@@ -103,7 +103,7 @@ function reduceByOne(dir, desired){
 }
 
 Character.prototype.move = function(blocks){
-  var diff = (this.ticker % 2 === 0) ? 8: 16;
+  var diff = (this.ticker % 2 === 0) ? 24 : 16;
 
     switch(this.direction){
     case 'left':
@@ -164,6 +164,9 @@ Game.prototype.initialize = function(element, character){
   this.ctx = canvas.getContext('2d');
   this.character = new Character(character);
   this.character.game = this;
+  window.addEventListener('resize', (function(e){
+    this.reposition();
+  }).bind(this), true);
 };
 
 Game.prototype.loadMap = function (map, startpos){
@@ -174,7 +177,29 @@ Game.prototype.loadMap = function (map, startpos){
   this.character.x = startpos.x;
   this.character.y = startpos.y;
   this.bindKeys();
+  this.reposition();
 };
+
+Game.prototype.reposition = function(){
+  var cwidth = window.innerWidth,
+      cheight = window.innerHeight,
+      offset = {x: 0, y: 0};
+
+    if(this.map.width <= cwidth){
+      offset.x = (cwidth - this.map.width) / 2;
+    } else{
+      offset.x = -1 * (this.character.x - (cwidth / 2));
+    }
+    if(this.map.height <= cheight){
+      offset.y = (cheight - this.map.height) /2;
+    } else{
+      offset.y = -1 * (this.character.y - (cheight / 2));
+    }
+
+  this.canvas.style.left = offset.x + 'px';
+  this.canvas.style.top = offset.y + 'px';
+};
+
 
 Game.prototype.clearCanvas = function(){
     this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
@@ -184,6 +209,9 @@ Game.prototype.draw = function(){
     this.clearCanvas();
     this.character.tick(this.map.blocks);
     this.map.render(this.character, this.ctx);
+    if(this.map.width > window.outerWidth || this.map.height > window.outerHeight){
+      this.reposition();
+    }
 };
 
 Game.prototype.start = function(){

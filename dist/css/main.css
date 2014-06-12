@@ -19,4 +19,8 @@ body div#game {
   text-align: center;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+}
+body div#game canvas {
+  position: absolute;
 }
