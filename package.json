@@ -14,7 +14,8 @@
   "license": "GPLV2",
   "dependencies": {
     "jasmine-node": "^1.14.3",
-    "node.extend": "^1.0.10"
+    "node.extend": "^1.0.10",
+    "requirejs": "^2.1.14"
   },
   "private": true
 }
