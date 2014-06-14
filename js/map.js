@@ -33,7 +33,7 @@ Map.prototype.loadObjects = function(objs){
   return _.sortBy(Objs, function(el){return el.cutoff;});
 };
 
-Map.prototype.render = function(character, ctx){
+Map.prototype.render = function(character, ctx, mode){
   var toggle = 0;
   ctx.drawImage(this.image, 0, 0);
   _.each(this.objs, function(obj){
@@ -50,8 +50,21 @@ Map.prototype.render = function(character, ctx){
       }
   }, this);
   if(toggle === 0){
-  character.render(ctx);
-}
+    character.render(ctx);
+  }
+  if(mode){
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.25);';
+    _.each(this.blocks, function(block){
+      ctx.beginPath();
+      ctx.moveTo(block.points[0].x, block.points[0].y);
+      for(var i = 1; i < block.points.length; i++){
+        ctx.lineTo(block.points[i].x, block.points[i].y);
+      }
+      ctx.lineTo(block.points[0].x, block.points[0].y);
+      ctx.closePath();
+      ctx.fill();
+    }, this);
+  }
 };
 
 

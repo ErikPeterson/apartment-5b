@@ -57,7 +57,7 @@ Character.prototype.go = function (dir, desired, blocks){
     while(collisions.length > 0){
       desired = reduceByOne(dir, desired);
       box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
-      collisions = _.filter(collisions, testBox);
+      collisions = _.filter(blocks, testBox);
     }
 
     this.x = desired.x;
@@ -74,23 +74,23 @@ function reduceByOne(dir, desired){
     desired.x = desired.x + 1;
     break;
   case 'left back':
-    desired.x = desired.x + 1;
-    desired.y = desired.y + 1;
+    desired.x = desired.x + 2;
+    desired.y = desired.y + 2;
     break;
   case 'left front':
-    desired.x = desired.x + 1;
-    desired.y = desired.y - 1;
+    desired.x = desired.x + 2;
+    desired.y = desired.y - 2;
     break;
   case 'right':
     desired.x = desired.x - 1;
     break;
   case 'right back':
-    desired.x = desired.x - 1;
-    desired.y = desired.y + 1;
+    desired.x = desired.x - 2;
+    desired.y = desired.y + 2;
     break;
   case 'right front':
-    desired.x = desired.x - 1;
-    desired.y = desired.y - 1;
+    desired.x = desired.x - 2;
+    desired.y = desired.y - 2;
     break;
   case 'front':
     desired.y = desired.y - 1;
@@ -110,10 +110,10 @@ Character.prototype.move = function(blocks){
       this.go('left', { x: this.x - diff, y: this.y }, blocks);
       break;
     case 'left back':
-      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.7) }, blocks);
+      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.5) }, blocks);
       break;
     case 'left front':
-      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.7) }, blocks);
+      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.5) }, blocks);
       break;
     case 'front':
       this.go('front', { x: this.x, y: this.y + diff }, blocks);
@@ -122,13 +122,13 @@ Character.prototype.move = function(blocks){
       this.go('right', { x: this.x + diff, y: this.y }, blocks);
       break;
     case 'right front':
-      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.7) }, blocks);
+      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.5) }, blocks);
       break;
     case 'back':
       this.go('back', { x: this.x, y: this.y - diff }, blocks);
       break;
     case 'right back':
-      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.7) }, blocks);
+      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.5) }, blocks);
       break;
     }
 };

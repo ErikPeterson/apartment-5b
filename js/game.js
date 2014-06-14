@@ -2,11 +2,12 @@ var keypress = require('./keypress');
 var Character = require('./character');
 var Map = require('./map');
 
-Game = function(element, character){
-  this.initialize(element, character);
+Game = function(element, character, mode){
+  this.initialize(element, character, mode);
 };
 
-Game.prototype.initialize = function(element, character){
+Game.prototype.initialize = function(element, character, mode){
+  this.mode = mode;
   this.container = document.getElementById(element);
   this.canvas = this.container.appendChild(document.createElement('canvas'));
   this.canvas.setAttribute('id','canvas');
@@ -64,7 +65,7 @@ Game.prototype.clearCanvas = function(){
 Game.prototype.draw = function(){
     this.clearCanvas();
     this.character.tick(this.map.blocks);
-    this.map.render(this.character, this.ctx);
+    this.map.render(this.character, this.ctx, this.mode);
     if(this.map.width > window.outerWidth || this.map.height > window.outerHeight){
       this.reposition();
     }

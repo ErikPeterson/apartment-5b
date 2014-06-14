@@ -73,7 +73,7 @@ Character.prototype.go = function (dir, desired, blocks){
     while(collisions.length > 0){
       desired = reduceByOne(dir, desired);
       box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
-      collisions = _.filter(collisions, testBox);
+      collisions = _.filter(blocks, testBox);
     }
 
     this.x = desired.x;
@@ -90,23 +90,23 @@ function reduceByOne(dir, desired){
     desired.x = desired.x + 1;
     break;
   case 'left back':
-    desired.x = desired.x + 1;
-    desired.y = desired.y + 1;
+    desired.x = desired.x + 2;
+    desired.y = desired.y + 2;
     break;
   case 'left front':
-    desired.x = desired.x + 1;
-    desired.y = desired.y - 1;
+    desired.x = desired.x + 2;
+    desired.y = desired.y - 2;
     break;
   case 'right':
     desired.x = desired.x - 1;
     break;
   case 'right back':
-    desired.x = desired.x - 1;
-    desired.y = desired.y + 1;
+    desired.x = desired.x - 2;
+    desired.y = desired.y + 2;
     break;
   case 'right front':
-    desired.x = desired.x - 1;
-    desired.y = desired.y - 1;
+    desired.x = desired.x - 2;
+    desired.y = desired.y - 2;
     break;
   case 'front':
     desired.y = desired.y - 1;
@@ -126,10 +126,10 @@ Character.prototype.move = function(blocks){
       this.go('left', { x: this.x - diff, y: this.y }, blocks);
       break;
     case 'left back':
-      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.7) }, blocks);
+      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.5) }, blocks);
       break;
     case 'left front':
-      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.7) }, blocks);
+      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.5) }, blocks);
       break;
     case 'front':
       this.go('front', { x: this.x, y: this.y + diff }, blocks);
@@ -138,13 +138,13 @@ Character.prototype.move = function(blocks){
       this.go('right', { x: this.x + diff, y: this.y }, blocks);
       break;
     case 'right front':
-      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.7) }, blocks);
+      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.5) }, blocks);
       break;
     case 'back':
       this.go('back', { x: this.x, y: this.y - diff }, blocks);
       break;
     case 'right back':
-      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.7) }, blocks);
+      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.5) }, blocks);
       break;
     }
 };
@@ -180,11 +180,12 @@ var keypress = require('./keypress');
 var Character = require('./character');
 var Map = require('./map');
 
-Game = function(element, character){
-  this.initialize(element, character);
+Game = function(element, character, mode){
+  this.initialize(element, character, mode);
 };
 
-Game.prototype.initialize = function(element, character){
+Game.prototype.initialize = function(element, character, mode){
+  this.mode = mode;
   this.container = document.getElementById(element);
   this.canvas = this.container.appendChild(document.createElement('canvas'));
   this.canvas.setAttribute('id','canvas');
@@ -242,7 +243,7 @@ Game.prototype.clearCanvas = function(){
 Game.prototype.draw = function(){
     this.clearCanvas();
     this.character.tick(this.map.blocks);
-    this.map.render(this.character, this.ctx);
+    this.map.render(this.character, this.ctx, this.mode);
     if(this.map.width > window.outerWidth || this.map.height > window.outerHeight){
       this.reposition();
     }
@@ -1417,6 +1418,7 @@ var block1 = {offset: {x:0, y: 0}, points: [
     {x: 0, y:156}
 ]}, block2 = {offset: {x:0, y: 0}, points: [
     {x: 239, y: 287},
+    {x: 238, y: 270},
     {x: 185, y: 321},
     {x: 195, y: 325},
     {x: 218, y: 315}
@@ -1456,14 +1458,14 @@ var block1 = {offset: {x:0, y: 0}, points: [
     {x: 630, y: 414},
     {x: 572, y: 314}
 ]}, block10 = {offset: {x:0, y: 0}, points: [
-    {x: 0, y: 414},
+    {x: 0, y: 412},
     {x: 0, y: 570},
-    {x: 315, y: 570}
+    {x: 316, y: 570}
 ]}, block11 = {offset: {x:0, y: 0}, points: [
     {x: 331, y: 295},
     {x: 331, y: 319},
     {x: 355, y: 319},
-    {x: 331, y: 295}
+    {x: 355, y: 295}
 ]}, block12 = {offset: {x:0, y: 0}, points: [
     {x: 81, y: 396},
     {x: 60, y: 404},
@@ -1471,12 +1473,17 @@ var block1 = {offset: {x:0, y: 0}, points: [
     {x: 81, y: 424},
     {x: 103, y: 413},
     {x: 103, y: 402}
+]}, block13 = {offset: {x:0, y: 0}, points: [
+    {x: 0, y: 414},
+    {x: 194, y: 316},
+    {x: 194, y: 300},
+    {x: 0, y: 398}
 ]}, exit = {offset: {x:0, y: 0}, exit: true, nextroom: 'Bedroom', startpos: {x:88, y: 384}, points: [
     {x: 504, y: 292},
     {x: 573, y: 316},
     {x: 569, y: 273}
 ]},
-blocks = [block1, block2, block3, block4, block5, block6, block8, block9, block10, block11, block12, exit];
+blocks = [block1, block2, block3, block4, block5, block6, block8, block9, block10, block11, block12, block13, exit];
 
 var objs = [
     {image: 'assets/room-2-wall.gif', x: 442, y: 66, cutoff: 350},
@@ -1525,7 +1532,7 @@ Map.prototype.loadObjects = function(objs){
   return _.sortBy(Objs, function(el){return el.cutoff;});
 };
 
-Map.prototype.render = function(character, ctx){
+Map.prototype.render = function(character, ctx, mode){
   var toggle = 0;
   ctx.drawImage(this.image, 0, 0);
   _.each(this.objs, function(obj){
@@ -1542,8 +1549,21 @@ Map.prototype.render = function(character, ctx){
       }
   }, this);
   if(toggle === 0){
-  character.render(ctx);
-}
+    character.render(ctx);
+  }
+  if(mode){
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.25);';
+    _.each(this.blocks, function(block){
+      ctx.beginPath();
+      ctx.moveTo(block.points[0].x, block.points[0].y);
+      for(var i = 1; i < block.points.length; i++){
+        ctx.lineTo(block.points[i].x, block.points[i].y);
+      }
+      ctx.lineTo(block.points[0].x, block.points[0].y);
+      ctx.closePath();
+      ctx.fill();
+    }, this);
+  }
 };
 
 
