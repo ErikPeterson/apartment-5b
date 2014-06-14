@@ -19,9 +19,15 @@ Game.prototype.initialize = function(element, character){
   }).bind(this), true);
 };
 
-Game.prototype.loadMap = function (map, startpos){
+Game.prototype.registerMap = function(map){
+  var map = new Map(map);
+  this.maps = this.maps || {};
+  this.maps[map.name] = map;
+};
+
+Game.prototype.loadMap = function (name, startpos){
   this.clearCanvas();
-  this.map = new Map(map);
+  this.map = this.maps[name];
   this.canvas.setAttribute('width', this.map.width);
   this.canvas.setAttribute('height', this.map.height);
   this.character.x = startpos.x;
@@ -76,7 +82,7 @@ Game.prototype.bindKeys = function(){
   var character = this.character;
   var listener = new keypress.Listener();
       listener.register_many([{
-        'keys':['left'],
+        'keys':'left',
         'on_keydown': function(e, c, r){
             character.direction = 'left';
             character.state = 'walking';
@@ -84,10 +90,9 @@ Game.prototype.bindKeys = function(){
         'on_keyup': function(){
           character.state = 'standing';
         },
-        'is_exclusive': true
-
+        is_solitary: true
       },{
-        'keys':['up'],
+        'keys':'up',
         'on_keydown': function(e, c, r){
           character.direction = 'back';
           character.state = 'walking';
@@ -95,7 +100,7 @@ Game.prototype.bindKeys = function(){
         'on_keyup': function(){
           character.state = 'standing';
         },
-        'is_exclusive': true
+        is_solitary: true
       },{
         'keys':['down'],
         'on_keydown': function(e, c, r){
@@ -105,7 +110,7 @@ Game.prototype.bindKeys = function(){
         'on_keyup': function(){
           character.state = 'standing';
         },
-        'is_exclusive': true
+        is_solitary: true
       },{
         'keys':['right'],
         'on_keydown': function(e, c, r){
@@ -115,8 +120,44 @@ Game.prototype.bindKeys = function(){
         },
         'on_keyup': function(){
           character.state = 'standing';
+        }
+      },{
+        'keys':'left up',
+        'on_keydown': function(e, c, r){
+            character.direction = 'left back';
+            character.state = 'walking';
         },
-        'is_exclusive': true
+        'on_keyup': function(){
+          character.state = 'standing';
+        },
+        is_unordered: true
+      },{'keys':'left down',
+        'on_keydown': function(e, c, r){
+            character.direction = 'left front';
+            character.state = 'walking';
+        },
+        'on_keyup': function(){
+          character.state = 'standing';
+        },
+        is_unordered: true
+      },{'keys':'right up',
+        'on_keydown': function(e, c, r){
+            character.direction = 'right back';
+            character.state = 'walking';
+        },
+        'on_keyup': function(){
+          character.state = 'standing';
+        },
+        is_unordered: true
+      },{'keys':'right down',
+        'on_keydown': function(e, c, r){
+            character.direction = 'right front';
+            character.state = 'walking';
+        },
+        'on_keyup': function(){
+          character.state = 'standing';
+        },
+        is_unordered: true
       }]);
 };
 

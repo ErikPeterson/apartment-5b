@@ -7,6 +7,7 @@ var Map = function(options){
 };
 
 Map.prototype.initialize = function(options){
+  this.name = options.name;
   this.width = options.w;
   this.height = options.h;
   this.image = createImage(options.image);
@@ -35,22 +36,24 @@ Map.prototype.loadObjects = function(objs){
 Map.prototype.render = function(character, ctx){
   var toggle = 0;
   ctx.drawImage(this.image, 0, 0);
-
   _.each(this.objs, function(obj){
       if(toggle === 0){
         if(character.maxy() <= obj.cutoff){
           toggle = 1;
           character.render(ctx);
           ctx.drawImage(obj.image, obj.x, obj.y);
-        }else if(character.maxy() > obj.cutoff){
-          toggle = 1;
-          ctx.drawImage(obj.image, obj.x, obj.y);
-          character.render(ctx);
         } else{
           ctx.drawImage(obj.image, obj.x, obj.y);
         }
+      } else{
+          ctx.drawImage(obj.image, obj.x, obj.y);
       }
   }, this);
+  if(toggle === 0){
+  character.render(ctx);
+}
 };
+
+
 
 module.exports = exports = Map;

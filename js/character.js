@@ -65,7 +65,7 @@ Character.prototype.go = function (dir, desired, blocks){
 };
 
 Character.prototype.exit = function(exit){
-  this.game.loadMap(exit.map);
+  this.game.loadMap(exit.nextroom, exit.startpos);
 };
 
 function reduceByOne(dir, desired){
@@ -73,8 +73,24 @@ function reduceByOne(dir, desired){
   case 'left':
     desired.x = desired.x + 1;
     break;
+  case 'left back':
+    desired.x = desired.x + 1;
+    desired.y = desired.y + 1;
+    break;
+  case 'left front':
+    desired.x = desired.x + 1;
+    desired.y = desired.y - 1;
+    break;
   case 'right':
     desired.x = desired.x - 1;
+    break;
+  case 'right back':
+    desired.x = desired.x - 1;
+    desired.y = desired.y + 1;
+    break;
+  case 'right front':
+    desired.x = desired.x - 1;
+    desired.y = desired.y - 1;
     break;
   case 'front':
     desired.y = desired.y - 1;
@@ -93,14 +109,26 @@ Character.prototype.move = function(blocks){
     case 'left':
       this.go('left', { x: this.x - diff, y: this.y }, blocks);
       break;
+    case 'left back':
+      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.7) }, blocks);
+      break;
+    case 'left front':
+      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.7) }, blocks);
+      break;
     case 'front':
       this.go('front', { x: this.x, y: this.y + diff }, blocks);
       break;
     case 'right':
       this.go('right', { x: this.x + diff, y: this.y }, blocks);
       break;
+    case 'right front':
+      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.7) }, blocks);
+      break;
     case 'back':
       this.go('back', { x: this.x, y: this.y - diff }, blocks);
+      break;
+    case 'right back':
+      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.7) }, blocks);
       break;
     }
 };
@@ -109,9 +137,9 @@ Character.prototype.move = function(blocks){
 
 Character.prototype.getSpriteState = function(){
   if(this.state === 'standing'){
-    return this.sprite.standing[this.direction];
+    return this.sprite.standing[this.direction.split(' ')[0]];
   }
-    return this.sprite.walking[this.direction][this.ticker];
+    return this.sprite.walking[this.direction.split(' ')[0]][this.ticker];
 };
 
 Character.prototype.maxy = function(){

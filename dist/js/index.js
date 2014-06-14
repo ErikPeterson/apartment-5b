@@ -81,7 +81,7 @@ Character.prototype.go = function (dir, desired, blocks){
 };
 
 Character.prototype.exit = function(exit){
-  this.game.loadMap(exit.map);
+  this.game.loadMap(exit.nextroom, exit.startpos);
 };
 
 function reduceByOne(dir, desired){
@@ -89,8 +89,24 @@ function reduceByOne(dir, desired){
   case 'left':
     desired.x = desired.x + 1;
     break;
+  case 'left back':
+    desired.x = desired.x + 1;
+    desired.y = desired.y + 1;
+    break;
+  case 'left front':
+    desired.x = desired.x + 1;
+    desired.y = desired.y - 1;
+    break;
   case 'right':
     desired.x = desired.x - 1;
+    break;
+  case 'right back':
+    desired.x = desired.x - 1;
+    desired.y = desired.y + 1;
+    break;
+  case 'right front':
+    desired.x = desired.x - 1;
+    desired.y = desired.y - 1;
     break;
   case 'front':
     desired.y = desired.y - 1;
@@ -109,14 +125,26 @@ Character.prototype.move = function(blocks){
     case 'left':
       this.go('left', { x: this.x - diff, y: this.y }, blocks);
       break;
+    case 'left back':
+      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.7) }, blocks);
+      break;
+    case 'left front':
+      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.7) }, blocks);
+      break;
     case 'front':
       this.go('front', { x: this.x, y: this.y + diff }, blocks);
       break;
     case 'right':
       this.go('right', { x: this.x + diff, y: this.y }, blocks);
       break;
+    case 'right front':
+      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.7) }, blocks);
+      break;
     case 'back':
       this.go('back', { x: this.x, y: this.y - diff }, blocks);
+      break;
+    case 'right back':
+      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.7) }, blocks);
       break;
     }
 };
@@ -125,9 +153,9 @@ Character.prototype.move = function(blocks){
 
 Character.prototype.getSpriteState = function(){
   if(this.state === 'standing'){
-    return this.sprite.standing[this.direction];
+    return this.sprite.standing[this.direction.split(' ')[0]];
   }
-    return this.sprite.walking[this.direction][this.ticker];
+    return this.sprite.walking[this.direction.split(' ')[0]][this.ticker];
 };
 
 Character.prototype.maxy = function(){
@@ -136,7 +164,7 @@ Character.prototype.maxy = function(){
 
 module.exports = exports = Character;
 
-},{"./SAT.min.js":1,"./sprite":8,"lodash":9}],3:[function(require,module,exports){
+},{"./SAT.min.js":1,"./sprite":10,"lodash":11}],3:[function(require,module,exports){
 var exports;
 
 function createImage(url){
@@ -169,9 +197,15 @@ Game.prototype.initialize = function(element, character){
   }).bind(this), true);
 };
 
-Game.prototype.loadMap = function (map, startpos){
+Game.prototype.registerMap = function(map){
+  var map = new Map(map);
+  this.maps = this.maps || {};
+  this.maps[map.name] = map;
+};
+
+Game.prototype.loadMap = function (name, startpos){
   this.clearCanvas();
-  this.map = new Map(map);
+  this.map = this.maps[name];
   this.canvas.setAttribute('width', this.map.width);
   this.canvas.setAttribute('height', this.map.height);
   this.character.x = startpos.x;
@@ -226,7 +260,7 @@ Game.prototype.bindKeys = function(){
   var character = this.character;
   var listener = new keypress.Listener();
       listener.register_many([{
-        'keys':['left'],
+        'keys':'left',
         'on_keydown': function(e, c, r){
             character.direction = 'left';
             character.state = 'walking';
@@ -234,10 +268,9 @@ Game.prototype.bindKeys = function(){
         'on_keyup': function(){
           character.state = 'standing';
         },
-        'is_exclusive': true
-
+        is_solitary: true
       },{
-        'keys':['up'],
+        'keys':'up',
         'on_keydown': function(e, c, r){
           character.direction = 'back';
           character.state = 'walking';
@@ -245,7 +278,7 @@ Game.prototype.bindKeys = function(){
         'on_keyup': function(){
           character.state = 'standing';
         },
-        'is_exclusive': true
+        is_solitary: true
       },{
         'keys':['down'],
         'on_keydown': function(e, c, r){
@@ -255,7 +288,7 @@ Game.prototype.bindKeys = function(){
         'on_keyup': function(){
           character.state = 'standing';
         },
-        'is_exclusive': true
+        is_solitary: true
       },{
         'keys':['right'],
         'on_keydown': function(e, c, r){
@@ -265,14 +298,50 @@ Game.prototype.bindKeys = function(){
         },
         'on_keyup': function(){
           character.state = 'standing';
+        }
+      },{
+        'keys':'left up',
+        'on_keydown': function(e, c, r){
+            character.direction = 'left back';
+            character.state = 'walking';
         },
-        'is_exclusive': true
+        'on_keyup': function(){
+          character.state = 'standing';
+        },
+        is_unordered: true
+      },{'keys':'left down',
+        'on_keydown': function(e, c, r){
+            character.direction = 'left front';
+            character.state = 'walking';
+        },
+        'on_keyup': function(){
+          character.state = 'standing';
+        },
+        is_unordered: true
+      },{'keys':'right up',
+        'on_keydown': function(e, c, r){
+            character.direction = 'right back';
+            character.state = 'walking';
+        },
+        'on_keyup': function(){
+          character.state = 'standing';
+        },
+        is_unordered: true
+      },{'keys':'right down',
+        'on_keydown': function(e, c, r){
+            character.direction = 'right front';
+            character.state = 'walking';
+        },
+        'on_keyup': function(){
+          character.state = 'standing';
+        },
+        is_unordered: true
       }]);
 };
 
 module.exports = exports = Game;
 
-},{"./character":2,"./keypress":5,"./map":6}],5:[function(require,module,exports){
+},{"./character":2,"./keypress":5,"./map":8}],5:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1324,6 +1393,103 @@ return keypress;
 }));
 
 },{}],6:[function(require,module,exports){
+var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
+    objs = [bed],
+    wall1 = {offset: {x: 315, y: 0}, points: [{x: 0, y: 0}, {x: -315, y: 0}, {x:-315,y: 414}, {x:0, y: 257}]},
+    wall2 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 315, y: 257}, {x:630,y: 414}, {x:630, y: 0}]},
+    wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 12, y: 510}, {x: 104, y: 464}]},
+    wall4 = {offset: {x: 0, y: 0}, points: [{x: 210, y: 517}, {x: 116, y: 564}, {x: 320, y: 570}]},
+    wall5 = {offset: {x: 0, y: 0}, points: [{x: 310, y: 570}, {x: 630, y: 570}, {x: 630, y: 414}]},
+    exit = {exit: true, startpos: {x: 448, y: 198}, nextroom: 'TV Set', offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
+    bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]},
+    blocks = [wall1, wall2, wall3, wall4, wall5, bedblock, exit];
+
+
+var map = {name:'Bedroom', image: 'assets/room1.gif', w: 630, h: 570, objs: objs, blocks: blocks};
+
+module.exports = exports = map;
+
+},{}],7:[function(require,module,exports){
+var block1 = {offset: {x:0, y: 0}, points: [
+    {x: 315, y: 0},
+    {x: 315, y: 248},
+    {x: 0, y: 406},
+    {x: 0, y:156}
+]}, block2 = {offset: {x:0, y: 0}, points: [
+    {x: 239, y: 287},
+    {x: 185, y: 321},
+    {x: 195, y: 325},
+    {x: 218, y: 315}
+]}, block3 = {offset: {x:0, y: 0}, points: [
+    {x: 325, y: 328},
+    {x: 303, y: 348},
+    {x: 303, y: 357},
+    {x: 400, y: 309},
+    {x: 400, y: 291}
+]}, block4 = {offset: {x:0, y: 0}, points: [
+    {x: 315, y: 0},
+    {x: 315, y: 249},
+    {x: 435, y: 309},
+    {x: 435, y: 60}
+]}, block5 = {offset: {x:0, y: 0}, points: [
+    {x: 315, y: 0},
+    {x: 401, y: 292},
+    {x: 401, y: 309},
+    {x: 435, y: 325}
+]}, block6 = {offset: {x:0, y: 0}, points: [
+    {x: 504, y: 94},
+    {x: 434, y: 60},
+    {x: 434, y: 326},
+    {x: 504, y: 290}
+]}, block7 = {offset: {x:0, y: 0}, points: [
+    {x: 575, y: 315},
+    {x: 505, y: 531},
+    {x: 630, y: 414},
+    {x: 630, y: 315}
+]}, block8 = {offset: {x:0, y: 0}, points: [
+    {x: 630, y: 323},
+    {x: 223, y: 524},
+    {x: 314, y: 570},
+    {x: 630, y: 413}
+]}, block9 = {offset: {x:0, y: 0}, points: [
+    {x: 502, y: 350},
+    {x: 630, y: 414},
+    {x: 572, y: 314}
+]}, block10 = {offset: {x:0, y: 0}, points: [
+    {x: 0, y: 414},
+    {x: 0, y: 570},
+    {x: 315, y: 570}
+]}, block11 = {offset: {x:0, y: 0}, points: [
+    {x: 331, y: 295},
+    {x: 331, y: 319},
+    {x: 355, y: 319},
+    {x: 331, y: 295}
+]}, block12 = {offset: {x:0, y: 0}, points: [
+    {x: 81, y: 396},
+    {x: 60, y: 404},
+    {x: 60, y: 414},
+    {x: 81, y: 424},
+    {x: 103, y: 413},
+    {x: 103, y: 402}
+]}, exit = {offset: {x:0, y: 0}, exit: true, nextroom: 'Bedroom', startpos: {x:88, y: 384}, points: [
+    {x: 504, y: 292},
+    {x: 573, y: 316},
+    {x: 569, y: 273}
+]},
+blocks = [block1, block2, block3, block4, block5, block6, block8, block9, block10, block11, block12, exit];
+
+var objs = [
+    {image: 'assets/room-2-wall.gif', x: 442, y: 66, cutoff: 350},
+    {image: 'assets/mic.gif', x: 331, y: 214, cutoff: 301},
+    {image: 'assets/camera.gif', x: 58, y: 312, cutoff: 414},
+    {image: 'assets/bleachers.gif', x: 224, y: 308, cutoff: 570}
+];
+
+var map = {name: 'TV Set', image: 'assets/room2.gif', w: 630, h: 570, objs: objs, blocks: blocks};
+
+module.exports = exports = map;
+
+},{}],8:[function(require,module,exports){
 var _ = require('lodash');
 var createImage = require('./createImage');
 var SAT = require('./SAT.min');
@@ -1333,6 +1499,7 @@ var Map = function(options){
 };
 
 Map.prototype.initialize = function(options){
+  this.name = options.name;
   this.width = options.w;
   this.height = options.h;
   this.image = createImage(options.image);
@@ -1361,48 +1528,45 @@ Map.prototype.loadObjects = function(objs){
 Map.prototype.render = function(character, ctx){
   var toggle = 0;
   ctx.drawImage(this.image, 0, 0);
-
   _.each(this.objs, function(obj){
       if(toggle === 0){
         if(character.maxy() <= obj.cutoff){
           toggle = 1;
           character.render(ctx);
           ctx.drawImage(obj.image, obj.x, obj.y);
-        }else if(character.maxy() > obj.cutoff){
-          toggle = 1;
-          ctx.drawImage(obj.image, obj.x, obj.y);
-          character.render(ctx);
         } else{
           ctx.drawImage(obj.image, obj.x, obj.y);
         }
+      } else{
+          ctx.drawImage(obj.image, obj.x, obj.y);
       }
   }, this);
+  if(toggle === 0){
+  character.render(ctx);
+}
 };
+
+
 
 module.exports = exports = Map;
 
-},{"./SAT.min":1,"./createImage":3,"lodash":9}],7:[function(require,module,exports){
+},{"./SAT.min":1,"./createImage":3,"lodash":11}],9:[function(require,module,exports){
 var Game = require('./game.js');
+var map1 = require('./level1.js');
+var map2 = require('./level2.js');
 
-var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
-    objs = [bed],
-    wall1 = {offset: {x: 315, y: 0}, points: [{x: 0, y: 0}, {x: -315, y: 0}, {x:-315,y: 414}, {x:0, y: 257}]},
-    wall2 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 315, y: 257}, {x:630,y: 414}, {x:630, y: 0}]},
-    wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 12, y: 510}, {x: 104, y: 464}]},
-    wall4 = {offset: {x: 0, y: 0}, points: [{x: 210, y: 517}, {x: 116, y: 564}, {x: 315, y: 570}]},
-    wall5 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 570}, {x: 630, y: 570}, {x: 630, y: 414}]},
-    exit = {exit: true, offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
-    bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]},
-    blocks = [wall1, wall2, wall3, wall4, wall5, bedblock, exit];
-
-var map = {image: 'assets/room1.gif', w: 630, h: 570, objs: objs, blocks: blocks};
 var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
 
 var g = new Game('game', kramer);
-g.loadMap(map, {x: 260, y: 250});
+
+g.registerMap(map1);
+g.registerMap(map2);
+
+g.loadMap('Bedroom', {x: 260, y: 250});
+
 g.start();
 
-},{"./game.js":4}],8:[function(require,module,exports){
+},{"./game.js":4,"./level1.js":6,"./level2.js":7}],10:[function(require,module,exports){
 var exports;
 var createImage = require('./createImage');
 
@@ -1439,7 +1603,7 @@ var Sprite = function(address, w, h){
 
 module.exports = exports = Sprite;
 
-},{"./createImage":3}],9:[function(require,module,exports){
+},{"./createImage":3}],11:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -8228,4 +8392,4 @@ module.exports = exports = Sprite;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[7])
+},{}]},{},[9])
