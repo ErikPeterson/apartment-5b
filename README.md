@@ -12,8 +12,6 @@ The current code is not very well documented and is in flux, but a demo is alway
 ##TODO
 Collision algorithm is wonky. Change algorithm for movement to check in smaller pixel units for collisions and more intelligently handle 'bouncing'.
 
-Add functionality for waiting for image load for rendering.
-
 Add support for 'cut scenes' and a path finding algorithm.
 
 Add support for 'action zones'.
