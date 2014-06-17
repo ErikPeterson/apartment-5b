@@ -1,10 +1,7 @@
 {
-  "name": "iso-engine",
+  "name": "Apartment 5B",
   "version": "0.0.0",
-  "description": "Engine for rendering isometric maps.",
-  "scripts": {
-    "test": "jasmine-node spec/"
-  },
+  "description": "Isometric game.",
   "main": "./js/runner",
   "keywords": [
     "js",
@@ -14,10 +11,8 @@
   "author": "Erik S. Peterson <eriksalgstrom@gmail.com>",
   "license": "GPLV2",
   "dependencies": {
-    "jasmine-node": "^1.14.3",
     "lodash": "^2.4.1",
-    "node.extend": "^1.0.10",
-    "requirejs": "^2.1.14"
+    "node.extend": "^1.0.10"
   },
   "private": true,
   "devDependencies": {
