@@ -29,7 +29,7 @@ var Sprite = function(address, w, h){
       right: [{sx: 1 * w, sy: 1 * h},{sx: 1 * w, sy: 2 * h},{sx: 1 * w, sy: 3 * h},{sx: 1 * w, sy: 4 * h}],
       left: [{sx: 0 * w, sy: 1 * h},{sx: 0 * w, sy: 2 * h},{sx: 0 * w, sy: 3 * h},{sx: 0 * w, sy: 4 * h}]
     }
-  }
+  };
 };
 
 module.exports = exports = Sprite;

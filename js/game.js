@@ -16,7 +16,6 @@ Game.prototype.initialize = function(element, character, mode){
   this.character = new Character(character);
   this.character.game = this;
   this.addListeners();
-  
 };
 
 Game.prototype.addListeners = function(){
@@ -33,9 +32,9 @@ Game.prototype.addListeners = function(){
 };
 
 Game.prototype.registerMap = function(map){
-  var map = new Map(map);
+  var curmap = new Map(map);
   this.maps = this.maps || {};
-  this.maps[map.name] = map;
+  this.maps[curmap.name] = curmap;
 };
 
 Game.prototype.loadMap = function (name, startpos){

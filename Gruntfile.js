@@ -34,10 +34,13 @@ module.exports = function(grunt){
         }]
       }
     },
+    jshint: {
+      beforebrowserify: ['./js/*.js', '!./js/keypress.js', '!./js/SAT.min.js']
+    },
     watch: {
       scripts: {
         files:'./js/*.js',
-        tasks: ['browserify']
+        tasks: ['jshint','browserify']
       },
       css: {
         files: './sass/*.scss',
@@ -50,7 +53,8 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  grunt.registerTask('default', ['browserify', 'copy', 'sass']);
+  grunt.registerTask('default', ['jshint','browserify', 'copy', 'sass']);
 
 };

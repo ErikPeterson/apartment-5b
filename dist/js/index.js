@@ -168,7 +168,7 @@ module.exports = exports = Character;
 var exports;
 
 function createImage(url){
-  var img = new Image;
+  var img = new Image();
   img.src = url;
   return img;
 }
@@ -194,7 +194,6 @@ Game.prototype.initialize = function(element, character, mode){
   this.character = new Character(character);
   this.character.game = this;
   this.addListeners();
-  
 };
 
 Game.prototype.addListeners = function(){
@@ -211,9 +210,9 @@ Game.prototype.addListeners = function(){
 };
 
 Game.prototype.registerMap = function(map){
-  var map = new Map(map);
+  var curmap = new Map(map);
   this.maps = this.maps || {};
-  this.maps[map.name] = map;
+  this.maps[curmap.name] = curmap;
 };
 
 Game.prototype.loadMap = function (name, startpos){
@@ -1636,7 +1635,7 @@ var Sprite = function(address, w, h){
       right: [{sx: 1 * w, sy: 1 * h},{sx: 1 * w, sy: 2 * h},{sx: 1 * w, sy: 3 * h},{sx: 1 * w, sy: 4 * h}],
       left: [{sx: 0 * w, sy: 1 * h},{sx: 0 * w, sy: 2 * h},{sx: 0 * w, sy: 3 * h},{sx: 0 * w, sy: 4 * h}]
     }
-  }
+  };
 };
 
 module.exports = exports = Sprite;
