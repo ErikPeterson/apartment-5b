@@ -23,12 +23,12 @@ var Character = function(options){
     this.initialize(options);
 };
 
-Character.prototype.initialize = function(options){
+Character.prototype.initialize = function(options, queuer){
   this.x = options.x || 0;
   this.y = options.y || 0;
   this.h = options.h;
   this.w = options.w;
-  this.sprite = new Sprite(options.sprite, this.w, this.h);
+  this.sprite = new Sprite(options.sprite, this.w, this.h, queuer);
   this.state = "standing";
   this.direction = "front";
   this.ticker = 0;
@@ -167,8 +167,11 @@ module.exports = exports = Character;
 },{"./SAT.min.js":1,"./sprite":10,"lodash":11}],3:[function(require,module,exports){
 var exports;
 
-function createImage(url){
+function createImage(url, queuer){
   var img = new Image();
+  if(queuer){
+    queuer(img);
+  }
   img.src = url;
   return img;
 }
@@ -178,6 +181,7 @@ module.exports = exports = createImage;
 },{}],4:[function(require,module,exports){
 var keypress = require('./keypress');
 var Character = require('./character');
+var _ = require('lodash');
 var Map = require('./map');
 
 Game = function(element, character, mode){
@@ -186,31 +190,42 @@ Game = function(element, character, mode){
 
 Game.prototype.initialize = function(element, character, mode){
   this.mode = mode;
+  this.imgs = [];
   this.container = document.getElementById(element);
   this.canvas = this.container.appendChild(document.createElement('canvas'));
   this.canvas.setAttribute('id','canvas');
   this.targetFps = 10;
+  this.loading = 0;
   this.ctx = canvas.getContext('2d');
-  this.character = new Character(character);
+  this.character = new Character(character, this.queueImage.bind(this));
   this.character.game = this;
+  this.bindKeys();
   this.addListeners();
+};
+
+Game.prototype.queueImage = function(img){
+  this.imgs.push(img);
+};
+
+Game.prototype.imagesLoaded = function(){
+  return _.every(this.imgs, 'complete');
 };
 
 Game.prototype.addListeners = function(){
   window.addEventListener('resize', (function(e){
     this.reposition();
   }).bind(this), true);
-  window.addEventListener('blur', (function(e){
+  window.addEventListener('onblur', (function(e){
     this.stop();
   }).bind(this), true);
 
-  window.addEventListener('focus', (function focusIn(e){
-        this.start();
+  window.addEventListener('onfocus', (function focusIn(e){
+        this.launch();
   }).bind(this), true);
 };
 
 Game.prototype.registerMap = function(map){
-  var curmap = new Map(map);
+  var curmap = new Map(map, this.queueImage.bind(this));
   this.maps = this.maps || {};
   this.maps[curmap.name] = curmap;
 };
@@ -222,7 +237,6 @@ Game.prototype.loadMap = function (name, startpos){
   this.canvas.setAttribute('height', this.map.height);
   this.character.x = startpos.x;
   this.character.y = startpos.y;
-  this.bindKeys();
   this.reposition();
 };
 
@@ -260,13 +274,23 @@ Game.prototype.draw = function(){
     }
 };
 
-Game.prototype.start = function(){
-    var that = this;
-    this.draw();
-    this.running = true;
-    this.timer = window.setTimeout(function(){
-      window.requestAnimationFrame(that.start.bind(that));
-    }, 1000 / this.targetFps);
+Game.prototype.launch = function(){
+  if(this.imagesLoaded()){
+    this.start();
+  } else{
+    window.setTimeout((function(){
+      this.launch();
+    }).bind(this), 125);
+  }
+};
+
+Game.prototype.start = function(ts){
+  var that = this;
+      that.draw();
+      that.running = true;
+      that.timer = window.setTimeout(function(){
+        window.requestAnimationFrame(that.start.bind(that));
+      }, 1000 / that.targetFps);  
 };
 
 Game.prototype.stop = function(){
@@ -359,7 +383,7 @@ Game.prototype.bindKeys = function(){
 
 module.exports = exports = Game;
 
-},{"./character":2,"./keypress":5,"./map":8}],5:[function(require,module,exports){
+},{"./character":2,"./keypress":5,"./map":8,"lodash":11}],5:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1518,15 +1542,16 @@ var _ = require('lodash');
 var createImage = require('./createImage');
 var SAT = require('./SAT.min');
 
-var Map = function(options){
-  this.initialize(options);
+var Map = function(options, queuer){
+  this.initialize(options, queuer);
 };
 
-Map.prototype.initialize = function(options){
+Map.prototype.initialize = function(options, queuer){
   this.name = options.name;
   this.width = options.w;
   this.height = options.h;
-  this.image = createImage(options.image);
+  this.queuer = queuer;
+  this.image = createImage(options.image, this.queuer);
   this.objs = this.loadObjects(options.objs);
   this.blocks = this.makeBoxes(options.blocks);
 };
@@ -1543,7 +1568,7 @@ Map.prototype.makeBoxes = function(blocks){
 
 Map.prototype.loadObjects = function(objs){
   var Objs = _.map(objs, function(el){
-    el.image = createImage(el.image);
+    el.image = createImage(el.image, this.queuer);
     return el;
   }, this);
   return _.sortBy(Objs, function(el){return el.cutoff;});
@@ -1601,17 +1626,17 @@ g.registerMap(map2);
 
 g.loadMap('Bedroom', {x: 260, y: 250});
 
-g.start();
+g.launch();
 
 },{"./game.js":4,"./level1.js":6,"./level2.js":7}],10:[function(require,module,exports){
 var exports;
 var createImage = require('./createImage');
 
-var Sprite = function(address, w, h){
+var Sprite = function(address, w, h, queuer){
   return {
     dw: w,
     dh: h,
-    img: createImage(address),
+    img: createImage(address, queuer),
     standing: {
       front: {
         sx: 3 * w,
