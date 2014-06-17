@@ -9,9 +9,6 @@ The engine relies on a UMD wrapped version of [Keypress](https://github.com/dmau
 ##Build
 The current code is not very well documented and is in flux, but a demo is always available in `dist/index.html`, and changes can be built using the Grunt tasks.
 
-##current state
-Iso engine is built with Common JS modules, compiled for the browser with browserify. A central game and character object work together with map objects to create the world. The game uses SAT.js for collision detection, lodash for functional support, and keypress.js for keyboard input capture.
-
 ##TODO
 Collision algorithm is wonky. Change algorithm for movement to check in smaller pixel units for collisions and more intelligently handle 'bouncing'.
 
