@@ -1,11 +1,11 @@
 var exports;
 var createImage = require('./createImage');
 
-var Sprite = function(address, w, h){
+var Sprite = function(address, w, h, queuer){
   return {
     dw: w,
     dh: h,
-    img: createImage(address),
+    img: createImage(address, queuer),
     standing: {
       front: {
         sx: 3 * w,

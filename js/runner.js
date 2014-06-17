@@ -11,4 +11,4 @@ g.registerMap(map2);
 
 g.loadMap('Bedroom', {x: 260, y: 250});
 
-g.start();
+g.launch();

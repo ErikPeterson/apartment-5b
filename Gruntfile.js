@@ -35,6 +35,9 @@ module.exports = function(grunt){
       }
     },
     jshint: {
+      options:{
+        debug: true
+      },
       beforebrowserify: ['./js/*.js', '!./js/keypress.js', '!./js/SAT.min.js']
     },
     watch: {

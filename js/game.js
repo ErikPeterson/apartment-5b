@@ -1,5 +1,6 @@
 var keypress = require('./keypress');
 var Character = require('./character');
+var _ = require('lodash');
 var Map = require('./map');
 
 Game = function(element, character, mode){
@@ -8,31 +9,42 @@ Game = function(element, character, mode){
 
 Game.prototype.initialize = function(element, character, mode){
   this.mode = mode;
+  this.imgs = [];
   this.container = document.getElementById(element);
   this.canvas = this.container.appendChild(document.createElement('canvas'));
   this.canvas.setAttribute('id','canvas');
   this.targetFps = 10;
+  this.loading = 0;
   this.ctx = canvas.getContext('2d');
-  this.character = new Character(character);
+  this.character = new Character(character, this.queueImage.bind(this));
   this.character.game = this;
+  this.bindKeys();
   this.addListeners();
+};
+
+Game.prototype.queueImage = function(img){
+  this.imgs.push(img);
+};
+
+Game.prototype.imagesLoaded = function(){
+  return _.every(this.imgs, 'complete');
 };
 
 Game.prototype.addListeners = function(){
   window.addEventListener('resize', (function(e){
     this.reposition();
   }).bind(this), true);
-  window.addEventListener('blur', (function(e){
+  window.addEventListener('onblur', (function(e){
     this.stop();
   }).bind(this), true);
 
-  window.addEventListener('focus', (function focusIn(e){
-        this.start();
+  window.addEventListener('onfocus', (function focusIn(e){
+        this.launch();
   }).bind(this), true);
 };
 
 Game.prototype.registerMap = function(map){
-  var curmap = new Map(map);
+  var curmap = new Map(map, this.queueImage.bind(this));
   this.maps = this.maps || {};
   this.maps[curmap.name] = curmap;
 };
@@ -44,7 +56,6 @@ Game.prototype.loadMap = function (name, startpos){
   this.canvas.setAttribute('height', this.map.height);
   this.character.x = startpos.x;
   this.character.y = startpos.y;
-  this.bindKeys();
   this.reposition();
 };
 
@@ -82,13 +93,23 @@ Game.prototype.draw = function(){
     }
 };
 
-Game.prototype.start = function(){
-    var that = this;
-    this.draw();
-    this.running = true;
-    this.timer = window.setTimeout(function(){
-      window.requestAnimationFrame(that.start.bind(that));
-    }, 1000 / this.targetFps);
+Game.prototype.launch = function(){
+  if(this.imagesLoaded()){
+    this.start();
+  } else{
+    window.setTimeout((function(){
+      this.launch();
+    }).bind(this), 125);
+  }
+};
+
+Game.prototype.start = function(ts){
+  var that = this;
+      that.draw();
+      that.running = true;
+      that.timer = window.setTimeout(function(){
+        window.requestAnimationFrame(that.start.bind(that));
+      }, 1000 / that.targetFps);  
 };
 
 Game.prototype.stop = function(){

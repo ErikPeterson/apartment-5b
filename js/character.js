@@ -7,12 +7,12 @@ var Character = function(options){
     this.initialize(options);
 };
 
-Character.prototype.initialize = function(options){
+Character.prototype.initialize = function(options, queuer){
   this.x = options.x || 0;
   this.y = options.y || 0;
   this.h = options.h;
   this.w = options.w;
-  this.sprite = new Sprite(options.sprite, this.w, this.h);
+  this.sprite = new Sprite(options.sprite, this.w, this.h, queuer);
   this.state = "standing";
   this.direction = "front";
   this.ticker = 0;
