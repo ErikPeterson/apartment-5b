@@ -1,5 +1,5 @@
 {
-  "name": "Apartment 5B",
+  "name": "apartment-5b",
   "version": "0.0.0",
   "description": "Isometric game.",
   "main": "./js/runner",
