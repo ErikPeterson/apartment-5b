@@ -1,6 +1,13 @@
-#iso-engine
+#Apartment 5B
+Apartment 5B is an in-development browser-based game inspired by UI design godmother Susan Kare and Seinfeld. The game is programmed in javascript, using Common JS modules and browserify.
 
-Iso engine is a fairly low level api for building sprite based two dimenisonal games.
+##Modules
+Apartment 5B uses several modules to construct and run the game. The primary module is `game.js`, which handles the render loop and manages the other game objects. The `map.js` module handles render layering and location-based logic, while `character.js` and `sprite.js` work together to manage the state and representation of the character on the screen.
+
+The engine relies on a UMD wrapped version of [Keypress](https://github.com/dmauro/Keypress) for registering and handling keyboard events, [Lo-Dash](http://lodash.com/) for functional support, and [SAT](https://github.com/jriecken/sat-js) for collision detection.
+
+##Build
+The current code is not very well documented and is in flux, but a demo is always available in `dist/index.html`, and changes can be built using the Grunt tasks.
 
 ##current state
 Iso engine is built with Common JS modules, compiled for the browser with browserify. A central game and character object work together with map objects to create the world. The game uses SAT.js for collision detection, lodash for functional support, and keypress.js for keyboard input capture.
