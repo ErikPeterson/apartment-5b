@@ -10,8 +10,6 @@ Collision algorithm is wonky. Change algorithm for movement to check in smaller 
 
 Add functionality for waiting for image load for rendering.
 
-Add support for stopping render cycle on blur.
-
 Add support for 'cut scenes' and a path finding algorithm.
 
 Add support for 'action zones'.

@@ -193,8 +193,20 @@ Game.prototype.initialize = function(element, character, mode){
   this.ctx = canvas.getContext('2d');
   this.character = new Character(character);
   this.character.game = this;
+  this.addListeners();
+  
+};
+
+Game.prototype.addListeners = function(){
   window.addEventListener('resize', (function(e){
     this.reposition();
+  }).bind(this), true);
+  window.addEventListener('blur', (function(e){
+    this.stop();
+  }).bind(this), true);
+
+  window.addEventListener('focus', (function focusIn(e){
+        this.start();
   }).bind(this), true);
 };
 
@@ -252,9 +264,15 @@ Game.prototype.draw = function(){
 Game.prototype.start = function(){
     var that = this;
     this.draw();
-    window.setTimeout(function(){
+    this.running = true;
+    this.timer = window.setTimeout(function(){
       window.requestAnimationFrame(that.start.bind(that));
     }, 1000 / this.targetFps);
+};
+
+Game.prototype.stop = function(){
+    window.clearTimeout(this.timer);
+    this.running = false;
 };
 
 Game.prototype.bindKeys = function(){
