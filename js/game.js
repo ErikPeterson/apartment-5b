@@ -15,7 +15,7 @@ Game.prototype.initialize = function(element, character, mode){
   this.canvas.setAttribute('id','canvas');
   this.targetFps = 10;
   this.loading = 0;
-  this.ctx = canvas.getContext('2d');
+  this.ctx = this.canvas.getContext('2d');
   this.character = new Character(character, this.queueImage.bind(this));
   this.character.game = this;
   this.bindKeys();

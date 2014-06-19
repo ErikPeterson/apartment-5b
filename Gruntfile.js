@@ -1,23 +1,34 @@
 module.exports = function(grunt){
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+
     browserify:{
-      standalone: {
+      iso: {
         src: ['<%= pkg.main %>.js'],
-        dest: './dist/js/index.js',
-        options: {
-          standalone: 'Iso'
-        }
+        dest: './dist/js/index.js'
+      },
+      editor: {
+        src: ['./js/editor.js'],
+        dest: './dist/js/editor.js'
       }
     },
     copy: {
-      main:{
+      images:{
         files:[{
             expand: true,
             cwd: './',
             src:['assets/*','!assets/*.psd'],
             dest: 'dist/'
         }]
+      },
+      html:{
+        files:[{
+          expand: true,
+          cwd: './html/',
+          src:['*'],
+          dest:'./dist/'
+        }
+        ]
       }
     },
     sass:{
@@ -38,7 +49,7 @@ module.exports = function(grunt){
       options:{
         debug: true
       },
-      beforebrowserify: ['./js/*.js', '!./js/keypress.js', '!./js/SAT.min.js']
+      main: ['./js/*.js', '!./js/keypress.js', '!./js/SAT.min.js']
     },
     watch: {
       scripts: {
@@ -48,6 +59,14 @@ module.exports = function(grunt){
       css: {
         files: './sass/*.scss',
         tasks: ['sass']
+      },
+      html: {
+        files: './html/*',
+        tasks: ['copy:html']
+      },
+      images: {
+        files: ['assets/*','!assets/*.psd'],
+        tasks: ['copy:images']
       }
       }
   });
@@ -58,6 +77,6 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  grunt.registerTask('default', ['jshint','browserify', 'copy', 'sass']);
+  grunt.registerTask('default', ['jshint','browserify', 'copy:images','copy:html', 'sass']);
 
 };

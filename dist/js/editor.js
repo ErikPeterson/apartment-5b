@@ -14,157 +14,6 @@ return f<=e};m.pointInPolygon=function(b,a){D.pos.c(b);y.clear();var c=C(D,a,y);
 c.overlapV.reverse();c.a=c.b;c.b=d;c.aInB=c.bInA;c.bInA=e}return a};m.testPolygonPolygon=C;return m}"function"===typeof define&&define.amd?define(w):"object"===typeof exports?module.exports=w():this.SAT=w();
 
 },{}],2:[function(require,module,exports){
-var Sprite = require('./sprite');
-var SAT = require('./SAT.min.js');
-var _ = require('lodash');
-var exports;
-
-var Character = function(options){
-    this.initialize(options);
-};
-
-Character.prototype.initialize = function(options, queuer){
-  this.x = options.x || 0;
-  this.y = options.y || 0;
-  this.h = options.h;
-  this.w = options.w;
-  this.sprite = new Sprite(options.sprite, this.w, this.h, queuer);
-  this.state = "standing";
-  this.direction = "front";
-  this.ticker = 0;
-};
-
-
-Character.prototype.render = function(ctx){
-  var state = this.getSpriteState();
-
-  ctx.drawImage(this.sprite.img, state.sx, state.sy, this.sprite.dw, this.sprite.dh, this.x, this.y, this.sprite.dw, this.sprite.dh);
-};
-
-Character.prototype.tick = function(blocks){
-  if(this.state === 'walking'){
-    this.move(blocks);
-  }
-  return (this.ticker === 3 ? this.ticker = 0 : this.ticker++);
-};
-
-Character.prototype.go = function (dir, desired, blocks){
-    var collisons,
-        exits = [],
-        box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
-
-    function testBox(block){
-      return SAT.testPolygonPolygon(box, block.box);
-    }
-
-    collisions = _.filter(blocks, function(block){
-      return SAT.testPolygonPolygon(box, block.box);
-    });
-
-    exits = _.filter(collisions, function(block){
-      return block.exit;
-    });
-
-    if(exits.length > 0){
-      return this.exit(exits[0]);
-    }
-
-
-    while(collisions.length > 0){
-      desired = reduceByOne(dir, desired);
-      box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
-      collisions = _.filter(blocks, testBox);
-    }
-
-    this.x = desired.x;
-    this.y = desired.y;
-};
-
-Character.prototype.exit = function(exit){
-  this.game.loadMap(exit.nextroom, exit.startpos);
-};
-
-function reduceByOne(dir, desired){
-  switch (dir){
-  case 'left':
-    desired.x = desired.x + 1;
-    break;
-  case 'left back':
-    desired.x = desired.x + 2;
-    desired.y = desired.y + 2;
-    break;
-  case 'left front':
-    desired.x = desired.x + 2;
-    desired.y = desired.y - 2;
-    break;
-  case 'right':
-    desired.x = desired.x - 1;
-    break;
-  case 'right back':
-    desired.x = desired.x - 2;
-    desired.y = desired.y + 2;
-    break;
-  case 'right front':
-    desired.x = desired.x - 2;
-    desired.y = desired.y - 2;
-    break;
-  case 'front':
-    desired.y = desired.y - 1;
-    break;
-  case 'back':
-    desired.y = desired.y + 1;
-    break;
-  }
-  return desired;
-}
-
-Character.prototype.move = function(blocks){
-  var diff = (this.ticker % 2 === 0) ? 24 : 16;
-
-    switch(this.direction){
-    case 'left':
-      this.go('left', { x: this.x - diff, y: this.y }, blocks);
-      break;
-    case 'left back':
-      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.5) }, blocks);
-      break;
-    case 'left front':
-      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.5) }, blocks);
-      break;
-    case 'front':
-      this.go('front', { x: this.x, y: this.y + diff }, blocks);
-      break;
-    case 'right':
-      this.go('right', { x: this.x + diff, y: this.y }, blocks);
-      break;
-    case 'right front':
-      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.5) }, blocks);
-      break;
-    case 'back':
-      this.go('back', { x: this.x, y: this.y - diff }, blocks);
-      break;
-    case 'right back':
-      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.5) }, blocks);
-      break;
-    }
-};
-
-
-
-Character.prototype.getSpriteState = function(){
-  if(this.state === 'standing'){
-    return this.sprite.standing[this.direction.split(' ')[0]];
-  }
-    return this.sprite.walking[this.direction.split(' ')[0]][this.ticker];
-};
-
-Character.prototype.maxy = function(){
-  return this.y + this.h;
-};
-
-module.exports = exports = Character;
-
-},{"./SAT.min.js":1,"./sprite":10,"lodash":11}],3:[function(require,module,exports){
 var exports;
 
 function createImage(url, queuer){
@@ -178,212 +27,11 @@ function createImage(url, queuer){
 
 module.exports = exports = createImage;
 
-},{}],4:[function(require,module,exports){
-var keypress = require('./keypress');
-var Character = require('./character');
-var _ = require('lodash');
-var Map = require('./map');
-
-Game = function(element, character, mode){
-  this.initialize(element, character, mode);
-};
-
-Game.prototype.initialize = function(element, character, mode){
-  this.mode = mode;
-  this.imgs = [];
-  this.container = document.getElementById(element);
-  this.canvas = this.container.appendChild(document.createElement('canvas'));
-  this.canvas.setAttribute('id','canvas');
-  this.targetFps = 10;
-  this.loading = 0;
-  this.ctx = this.canvas.getContext('2d');
-  this.character = new Character(character, this.queueImage.bind(this));
-  this.character.game = this;
-  this.bindKeys();
-  this.addListeners();
-};
-
-Game.prototype.queueImage = function(img){
-  this.imgs.push(img);
-};
-
-Game.prototype.imagesLoaded = function(){
-  return _.every(this.imgs, 'complete');
-};
-
-Game.prototype.addListeners = function(){
-  window.addEventListener('resize', (function(e){
-    this.reposition();
-  }).bind(this), true);
-  window.addEventListener('onblur', (function(e){
-    this.stop();
-  }).bind(this), true);
-
-  window.addEventListener('onfocus', (function focusIn(e){
-        this.launch();
-  }).bind(this), true);
-};
-
-Game.prototype.registerMap = function(map){
-  var curmap = new Map(map, this.queueImage.bind(this));
-  this.maps = this.maps || {};
-  this.maps[curmap.name] = curmap;
-};
-
-Game.prototype.loadMap = function (name, startpos){
-  this.clearCanvas();
-  this.map = this.maps[name];
-  this.canvas.setAttribute('width', this.map.width);
-  this.canvas.setAttribute('height', this.map.height);
-  this.character.x = startpos.x;
-  this.character.y = startpos.y;
-  this.reposition();
-};
-
-Game.prototype.reposition = function(){
-  var cwidth = window.innerWidth,
-      cheight = window.innerHeight,
-      offset = {x: 0, y: 0};
-
-    if(this.map.width <= cwidth){
-      offset.x = (cwidth - this.map.width) / 2;
-    } else{
-      offset.x = -1 * (this.character.x - (cwidth / 2));
-    }
-    if(this.map.height <= cheight){
-      offset.y = (cheight - this.map.height) /2;
-    } else{
-      offset.y = -1 * (this.character.y - (cheight / 2));
-    }
-
-  this.canvas.style.left = offset.x + 'px';
-  this.canvas.style.top = offset.y + 'px';
-};
-
-
-Game.prototype.clearCanvas = function(){
-    this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
-};
-
-Game.prototype.draw = function(){
-    this.clearCanvas();
-    this.character.tick(this.map.blocks);
-    this.map.render(this.character, this.ctx, this.mode);
-    if(this.map.width > window.outerWidth || this.map.height > window.outerHeight){
-      this.reposition();
-    }
-};
-
-Game.prototype.launch = function(){
-  if(this.imagesLoaded()){
-    this.start();
-  } else{
-    window.setTimeout((function(){
-      this.launch();
-    }).bind(this), 125);
-  }
-};
-
-Game.prototype.start = function(ts){
-  var that = this;
-      that.draw();
-      that.running = true;
-      that.timer = window.setTimeout(function(){
-        window.requestAnimationFrame(that.start.bind(that));
-      }, 1000 / that.targetFps);  
-};
-
-Game.prototype.stop = function(){
-    window.clearTimeout(this.timer);
-    this.running = false;
-};
-
-Game.prototype.bindKeys = function(){
-  var character = this.character;
-  var listener = new keypress.Listener();
-      listener.register_many([{
-        'keys':'left',
-        'on_keydown': function(e, c, r){
-            character.direction = 'left';
-            character.state = 'walking';
-        },
-        'on_keyup': function(){
-          character.state = 'standing';
-        },
-        is_solitary: true
-      },{
-        'keys':'up',
-        'on_keydown': function(e, c, r){
-          character.direction = 'back';
-          character.state = 'walking';
-        },
-        'on_keyup': function(){
-          character.state = 'standing';
-        },
-        is_solitary: true
-      },{
-        'keys':['down'],
-        'on_keydown': function(e, c, r){
-          character.direction = 'front';
-          character.state = 'walking';
-        },
-        'on_keyup': function(){
-          character.state = 'standing';
-        },
-        is_solitary: true
-      },{
-        'keys':['right'],
-        'on_keydown': function(e, c, r){
-          character.direction = 'right';
-          character.state = 'walking';
-
-        },
-        'on_keyup': function(){
-          character.state = 'standing';
-        }
-      },{
-        'keys':'left up',
-        'on_keydown': function(e, c, r){
-            character.direction = 'left back';
-            character.state = 'walking';
-        },
-        'on_keyup': function(){
-          character.state = 'standing';
-        },
-        is_unordered: true
-      },{'keys':'left down',
-        'on_keydown': function(e, c, r){
-            character.direction = 'left front';
-            character.state = 'walking';
-        },
-        'on_keyup': function(){
-          character.state = 'standing';
-        },
-        is_unordered: true
-      },{'keys':'right up',
-        'on_keydown': function(e, c, r){
-            character.direction = 'right back';
-            character.state = 'walking';
-        },
-        'on_keyup': function(){
-          character.state = 'standing';
-        },
-        is_unordered: true
-      },{'keys':'right down',
-        'on_keydown': function(e, c, r){
-            character.direction = 'right front';
-            character.state = 'walking';
-        },
-        'on_keyup': function(){
-          character.state = 'standing';
-        },
-        is_unordered: true
-      }]);
-};
-
-module.exports = exports = Game;
-
-},{"./character":2,"./keypress":5,"./map":8,"lodash":11}],5:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
+var MapEditor = require('./map-editor.js');
+//
+e = new MapEditor();
+},{"./map-editor.js":5}],4:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1434,110 +1082,77 @@ module.exports = exports = Game;
 return keypress;
 }));
 
-},{}],6:[function(require,module,exports){
-var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
-    objs = [bed],
-    wall1 = {offset: {x: 315, y: 0}, points: [{x: 0, y: 0}, {x: -315, y: 0}, {x:-315,y: 414}, {x:0, y: 257}]},
-    wall2 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 315, y: 257}, {x:630,y: 414}, {x:630, y: 0}]},
-    wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 12, y: 510}, {x: 104, y: 464}]},
-    wall4 = {offset: {x: 0, y: 0}, points: [{x: 210, y: 517}, {x: 116, y: 564}, {x: 320, y: 570}]},
-    wall5 = {offset: {x: 0, y: 0}, points: [{x: 310, y: 570}, {x: 630, y: 570}, {x: 630, y: 414}]},
-    exit = {exit: true, startpos: {x: 448, y: 198}, nextroom: 'TV Set', offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
-    bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]},
-    blocks = [wall1, wall2, wall3, wall4, wall5, bedblock, exit];
+},{}],5:[function(require,module,exports){
+var map = require('./map.js');
+var keypress = require('./keypress.js');
+var createImage = require('./createImage.js');
 
+var MapEditor = function(){
+    this.initialize();
+};
 
-var map = {name:'Bedroom', image: 'assets/room1.gif', w: 630, h: 570, objs: objs, blocks: blocks};
+MapEditor.prototype.initialize = function(){
+    this.targetFps = 30;
+    this.height = 570;
+    this.width = 630;
+    this.container = document.querySelector('#editor-container');
+    this.viewport = document.querySelector('#editor-viewport');
+    this.fields = document.querySelector('#editor-fields');
+    this.widthField = document.querySelector('input#map-width');
+    this.heightField = document.querySelector('input#map-height');
+    this.imageField = document.querySelector('input#map-image');
+    this.setButton = document.querySelector('button#set-image');
+    this.canvas = document.createElement('canvas');
+    this.canvas.setAttribute('id', 'canvas');
+    this.canvas.setAttribute('height', this.height);
+    this.canvas.setAttribute('width', this.width);
+    this.viewport.appendChild(this.canvas);
+    this.ctx = this.canvas.getContext('2d');
+    this.bindEvents();
+};
 
-module.exports = exports = map;
+MapEditor.prototype.bindEvents = function(){
+    this.keyhandler = new keypress.Listener();
+    var that = this;
 
-},{}],7:[function(require,module,exports){
-var block1 = {offset: {x:0, y: 0}, points: [
-    {x: 315, y: 0},
-    {x: 315, y: 248},
-    {x: 0, y: 406},
-    {x: 0, y:156}
-]}, block2 = {offset: {x:0, y: 0}, points: [
-    {x: 239, y: 287},
-    {x: 238, y: 270},
-    {x: 185, y: 321},
-    {x: 195, y: 325},
-    {x: 218, y: 315}
-]}, block3 = {offset: {x:0, y: 0}, points: [
-    {x: 325, y: 328},
-    {x: 303, y: 348},
-    {x: 303, y: 357},
-    {x: 400, y: 309},
-    {x: 400, y: 291}
-]}, block4 = {offset: {x:0, y: 0}, points: [
-    {x: 315, y: 0},
-    {x: 315, y: 249},
-    {x: 435, y: 309},
-    {x: 435, y: 60}
-]}, block5 = {offset: {x:0, y: 0}, points: [
-    {x: 315, y: 0},
-    {x: 401, y: 292},
-    {x: 401, y: 309},
-    {x: 435, y: 325}
-]}, block6 = {offset: {x:0, y: 0}, points: [
-    {x: 504, y: 94},
-    {x: 434, y: 60},
-    {x: 434, y: 326},
-    {x: 504, y: 290}
-]}, block7 = {offset: {x:0, y: 0}, points: [
-    {x: 575, y: 315},
-    {x: 505, y: 531},
-    {x: 630, y: 414},
-    {x: 630, y: 315}
-]}, block8 = {offset: {x:0, y: 0}, points: [
-    {x: 630, y: 323},
-    {x: 223, y: 524},
-    {x: 314, y: 570},
-    {x: 630, y: 413}
-]}, block9 = {offset: {x:0, y: 0}, points: [
-    {x: 502, y: 350},
-    {x: 630, y: 414},
-    {x: 572, y: 314}
-]}, block10 = {offset: {x:0, y: 0}, points: [
-    {x: 0, y: 412},
-    {x: 0, y: 570},
-    {x: 316, y: 570}
-]}, block11 = {offset: {x:0, y: 0}, points: [
-    {x: 331, y: 295},
-    {x: 331, y: 319},
-    {x: 355, y: 319},
-    {x: 355, y: 295}
-]}, block12 = {offset: {x:0, y: 0}, points: [
-    {x: 81, y: 396},
-    {x: 60, y: 404},
-    {x: 60, y: 414},
-    {x: 81, y: 424},
-    {x: 103, y: 413},
-    {x: 103, y: 402}
-]}, block13 = {offset: {x:0, y: 0}, points: [
-    {x: 0, y: 414},
-    {x: 194, y: 316},
-    {x: 194, y: 300},
-    {x: 0, y: 398}
-]}, exit = {offset: {x:0, y: 0}, exit: true, nextroom: 'Bedroom', startpos: {x:88, y: 384}, points: [
-    {x: 504, y: 292},
-    {x: 573, y: 316},
-    {x: 569, y: 273}
-]},
-blocks = [block1, block2, block3, block4, block5, block6, block8, block9, block10, block11, block12, block13, exit];
+    that.setButton.addEventListener('click', function (e){
+        that.setBg();
+    }, true);
+};
 
-var objs = [
-    {image: 'assets/room-2-wall.gif', x: 442, y: 66, cutoff: 350},
-    {image: 'assets/mic.gif', x: 331, y: 214, cutoff: 301},
-    {image: 'assets/camera.gif', x: 58, y: 312, cutoff: 414},
-    {image: 'assets/bleachers.gif', x: 224, y: 308, cutoff: 570}
-];
+MapEditor.prototype.setBg = function(){
+    var val = this.imageField.value,
+        reg =/^\s+$/;
 
-var map = {name: 'TV Set', image: 'assets/room2.gif', w: 630, h: 570, objs: objs, blocks: blocks};
+    if(reg.test(val)){
+        return;
+    }
 
-module.exports = exports = map;
+    this.img = createImage(val);
+    this.img.addEventListener('load', this.start.bind(this), true);
+    this.fields.removeChild(this.fields.querySelector('label:last-of-type'));
+    this.fields.removeChild(this.setButton);
+};
 
-},{}],8:[function(require,module,exports){
+MapEditor.prototype.start = function(e){
+    var that = this;
+      that.draw();
+      that.timer = window.setTimeout(function(){
+        window.requestAnimationFrame(that.start.bind(that));
+      }, 1000 / that.targetFps); 
+};
+
+MapEditor.prototype.clearCanvas = function(){
+    this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
+};
+
+MapEditor.prototype.draw = function(){
+    this.clearCanvas();
+    this.ctx.drawImage(this.img, 0, 0);
+};
+
+module.exports = exports = MapEditor;
+},{"./createImage.js":2,"./keypress.js":4,"./map.js":6}],6:[function(require,module,exports){
 var _ = require('lodash');
 var createImage = require('./createImage');
 var SAT = require('./SAT.min');
@@ -1612,60 +1227,7 @@ Map.prototype.render = function(character, ctx, mode){
 
 module.exports = exports = Map;
 
-},{"./SAT.min":1,"./createImage":3,"lodash":11}],9:[function(require,module,exports){
-var Game = require('./game.js');
-var map1 = require('./level1.js');
-var map2 = require('./level2.js');
-
-var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
-
-var g = new Game('game', kramer);
-
-g.registerMap(map1);
-g.registerMap(map2);
-
-g.loadMap('Bedroom', {x: 260, y: 250});
-
-g.launch();
-
-},{"./game.js":4,"./level1.js":6,"./level2.js":7}],10:[function(require,module,exports){
-var exports;
-var createImage = require('./createImage');
-
-var Sprite = function(address, w, h, queuer){
-  return {
-    dw: w,
-    dh: h,
-    img: createImage(address, queuer),
-    standing: {
-      front: {
-        sx: 3 * w,
-        sy: 0
-      },
-      back: {
-        sx: 2 * w,
-        sy: 0
-      },
-      right: {
-        sx: 1 * w,
-        sy: 0
-      },
-      left: {
-        sx: 0 * w,
-        sy: 0
-      }
-    }, walking: {
-      front: [{sx: 3 * w, sy: 1 * h},{sx: 3 * w, sy: 2 * h},{sx: 3 * w, sy: 3 * h},{sx: 3 * w, sy: 4 * h}],
-      back: [{sx: 2 * w, sy: 1 * h},{sx: 2 * w, sy: 2 * h},{sx: 2 * w, sy: 3 * h},{sx: 2 * w, sy: 4 * h}],
-      right: [{sx: 1 * w, sy: 1 * h},{sx: 1 * w, sy: 2 * h},{sx: 1 * w, sy: 3 * h},{sx: 1 * w, sy: 4 * h}],
-      left: [{sx: 0 * w, sy: 1 * h},{sx: 0 * w, sy: 2 * h},{sx: 0 * w, sy: 3 * h},{sx: 0 * w, sy: 4 * h}]
-    }
-  };
-};
-
-module.exports = exports = Sprite;
-
-},{"./createImage":3}],11:[function(require,module,exports){
+},{"./SAT.min":1,"./createImage":2,"lodash":7}],7:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -8454,4 +8016,4 @@ module.exports = exports = Sprite;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[9])
+},{}]},{},[3])
