@@ -32,7 +32,7 @@ module.exports = function(grunt){
       }
     },
     sass:{
-      dist: {
+      main: {
         options: {
           style: 'expanded'
         },
@@ -43,6 +43,15 @@ module.exports = function(grunt){
           dest: 'dist/css/',
           ext: '.css'
         }]
+      }
+    },
+    autoprefixer:{
+      options: {
+        browsers: ['last 2 version']
+      },
+      main: {
+        src: 'dist/css/main.css',
+        dest: 'dist/css/main.css'
       }
     },
     jshint: {
@@ -56,9 +65,9 @@ module.exports = function(grunt){
         files:'./js/*.js',
         tasks: ['jshint','browserify']
       },
-      css: {
+      sass: {
         files: './sass/*.scss',
-        tasks: ['sass']
+        tasks: ['sass', 'autoprefixer']
       },
       html: {
         files: './html/*',
@@ -74,6 +83,7 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-autoprefixer');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
 

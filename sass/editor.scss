@@ -1,0 +1,71 @@
+#editor-container{
+	position: relative;
+	display: block;
+	width: auto;
+	height: auto;
+	margin: 2em auto 0 auto;
+	text-align: center;
+	#editor-fields{
+		display: inline-block;
+		text-align: left;
+		label{
+			display: inline-block;
+			font: 1.25em/1 monospace;
+			height: auto;
+			text-align: left;
+			margin-bottom: .5em;
+			input{
+				width: auto;
+				height: 1.25em;
+				border: 1px solid black;
+				box-sizing: border-box;
+				font: 1em/1 monospace;
+				padding: .12em;
+			}
+		}
+		button{
+			display: inline-block;
+			width: auto;
+			height: 1.5em;
+			border: 1px solid black;
+			border-radius: 5px;
+			font: 1em/1 monospace;
+			padding: .12em 1em;
+			background-color: white;
+		}
+	}
+	#editor-viewport{
+		display: inline-block;
+		width: auto;
+		height: auto;
+		max-width: 100%;
+		max-height: 100%;
+		position: relative;
+		box-sizing: border-box;
+		padding: 1em;
+		border-radius: 5px;
+		border: 1px solid black;
+		margin: 2em auto 0 auto;
+		overflow: hidden;
+		canvas{
+			display: block;
+			position: relative;
+		}
+	}
+	#tools-container{
+		height: auto;
+		position: relative;
+		display: inline-block;
+		width: auto;
+	}
+	
+}
+.hidden{
+		display: none !important;
+}
+.container{
+	display: block;
+	margin: 0;
+	padding: 0;
+	clear: both;
+}

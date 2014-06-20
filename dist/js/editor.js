@@ -14,24 +14,10 @@ return f<=e};m.pointInPolygon=function(b,a){D.pos.c(b);y.clear();var c=C(D,a,y);
 c.overlapV.reverse();c.a=c.b;c.b=d;c.aInB=c.bInA;c.bInA=e}return a};m.testPolygonPolygon=C;return m}"function"===typeof define&&define.amd?define(w):"object"===typeof exports?module.exports=w():this.SAT=w();
 
 },{}],2:[function(require,module,exports){
-var exports;
-
-function createImage(url, queuer){
-  var img = new Image();
-  if(queuer){
-    queuer(img);
-  }
-  img.src = url;
-  return img;
-}
-
-module.exports = exports = createImage;
-
-},{}],3:[function(require,module,exports){
 var MapEditor = require('./map-editor.js');
 //
 e = new MapEditor();
-},{"./map-editor.js":5}],4:[function(require,module,exports){
+},{"./map-editor.js":4}],3:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1082,42 +1068,56 @@ e = new MapEditor();
 return keypress;
 }));
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var map = require('./map.js');
 var keypress = require('./keypress.js');
-var createImage = require('./createImage.js');
+var createImage = require('./support.js').createImage;
+var $ = document.querySelector.bind(document);
 
 var MapEditor = function(){
     this.initialize();
 };
 
+
+
 MapEditor.prototype.initialize = function(){
     this.targetFps = 30;
-    this.height = 570;
-    this.width = 630;
-    this.container = document.querySelector('#editor-container');
-    this.viewport = document.querySelector('#editor-viewport');
-    this.fields = document.querySelector('#editor-fields');
-    this.widthField = document.querySelector('input#map-width');
-    this.heightField = document.querySelector('input#map-height');
-    this.imageField = document.querySelector('input#map-image');
-    this.setButton = document.querySelector('button#set-image');
+    this.container = $('#editor-container');
+    this.viewport = $('#editor-viewport');
+    this.fields = $('#editor-fields');
+    this.imageField = $('input#map-image');
+    this.nameField = $('input#map-name');
+    this.setButton = $('button#set-image');
+    this.toolsContainer = $('#editor-tools');
+    this.hide(this.toolsContainer);
     this.canvas = document.createElement('canvas');
     this.canvas.setAttribute('id', 'canvas');
-    this.canvas.setAttribute('height', this.height);
-    this.canvas.setAttribute('width', this.width);
     this.viewport.appendChild(this.canvas);
+    this.hide(this.canvas);
+    this.hide(this.viewport);
     this.ctx = this.canvas.getContext('2d');
     this.bindEvents();
 };
 
+MapEditor.prototype.setDimensions = function (w, h){
+    this.width = w;
+    this.height = h;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+};
+
 MapEditor.prototype.bindEvents = function(){
-    this.keyhandler = new keypress.Listener();
     var that = this;
 
     that.setButton.addEventListener('click', function (e){
         that.setBg();
     }, true);
+
+    that.nameField.addEventListener('change', function(e){
+        var name = that.nameField.value;
+        that.name = name;
+        console.log(that.name);
+    });
 };
 
 MapEditor.prototype.setBg = function(){
@@ -1129,9 +1129,36 @@ MapEditor.prototype.setBg = function(){
     }
 
     this.img = createImage(val);
-    this.img.addEventListener('load', this.start.bind(this), true);
-    this.fields.removeChild(this.fields.querySelector('label:last-of-type'));
+
+    this.img.addEventListener('load', function(e){
+        this.show(this.viewport);
+        this.show(this.canvas);
+        this.setDimensions(this.img.width, this.img.height);
+        this.start();
+    }.bind(this), true);
+
     this.fields.removeChild(this.setButton);
+    this.fields.removeChild(this.fields.querySelector('label:first-of-type'));
+    this.show(this.toolsContainer);
+};
+
+MapEditor.prototype.hide = function(el){
+    var classes = el.getAttribute('class') || '';
+    if( !/\bhidden\b/.test(classes) ){
+        if(classes !== ''){
+            el.setAttribute('class', classes + ' hidden');
+        } else{
+            el.setAttribute('class', 'hidden');
+        }
+    }
+
+};
+
+MapEditor.prototype.show = function(el){
+    var classes = el.getAttribute('class') || '';
+    if( /\bhidden\b/.test(classes) ){
+        el.setAttribute('class', classes.replace(/\s?hidden/, ''));
+    }
 };
 
 MapEditor.prototype.start = function(e){
@@ -1152,9 +1179,9 @@ MapEditor.prototype.draw = function(){
 };
 
 module.exports = exports = MapEditor;
-},{"./createImage.js":2,"./keypress.js":4,"./map.js":6}],6:[function(require,module,exports){
+},{"./keypress.js":3,"./map.js":5,"./support.js":6}],5:[function(require,module,exports){
 var _ = require('lodash');
-var createImage = require('./createImage');
+var createImage = require('./support.js').createImage;
 var SAT = require('./SAT.min');
 
 var Map = function(options, queuer){
@@ -1227,7 +1254,27 @@ Map.prototype.render = function(character, ctx, mode){
 
 module.exports = exports = Map;
 
-},{"./SAT.min":1,"./createImage":2,"lodash":7}],7:[function(require,module,exports){
+},{"./SAT.min":1,"./support.js":6,"lodash":7}],6:[function(require,module,exports){
+var SAT = require('./SAT.min.js');
+
+var makeVector = function (point){
+    return new SAT.Vector(point.x, point.y);
+};
+
+var createImage = function (url, queuer){
+  var img = new Image();
+  if(queuer){
+    queuer(img);
+  }
+  img.src = url;
+  return img;
+};
+
+exports.makeVector = makeVector;
+exports.createImage = createImage;
+
+module.exports = exports;
+},{"./SAT.min.js":1}],7:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -8016,4 +8063,4 @@ module.exports = exports = Map;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[3])
+},{}]},{},[2])

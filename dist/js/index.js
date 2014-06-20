@@ -164,21 +164,7 @@ Character.prototype.maxy = function(){
 
 module.exports = exports = Character;
 
-},{"./SAT.min.js":1,"./sprite":10,"lodash":11}],3:[function(require,module,exports){
-var exports;
-
-function createImage(url, queuer){
-  var img = new Image();
-  if(queuer){
-    queuer(img);
-  }
-  img.src = url;
-  return img;
-}
-
-module.exports = exports = createImage;
-
-},{}],4:[function(require,module,exports){
+},{"./SAT.min.js":1,"./sprite":9,"lodash":11}],3:[function(require,module,exports){
 var keypress = require('./keypress');
 var Character = require('./character');
 var _ = require('lodash');
@@ -383,7 +369,7 @@ Game.prototype.bindKeys = function(){
 
 module.exports = exports = Game;
 
-},{"./character":2,"./keypress":5,"./map":8,"lodash":11}],5:[function(require,module,exports){
+},{"./character":2,"./keypress":4,"./map":7,"lodash":11}],4:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1434,7 +1420,7 @@ module.exports = exports = Game;
 return keypress;
 }));
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
     objs = [bed],
     wall1 = {offset: {x: 315, y: 0}, points: [{x: 0, y: 0}, {x: -315, y: 0}, {x:-315,y: 414}, {x:0, y: 257}]},
@@ -1451,7 +1437,7 @@ var map = {name:'Bedroom', image: 'assets/room1.gif', w: 630, h: 570, objs: objs
 
 module.exports = exports = map;
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var block1 = {offset: {x:0, y: 0}, points: [
     {x: 315, y: 0},
     {x: 315, y: 248},
@@ -1537,9 +1523,9 @@ var map = {name: 'TV Set', image: 'assets/room2.gif', w: 630, h: 570, objs: objs
 
 module.exports = exports = map;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var _ = require('lodash');
-var createImage = require('./createImage');
+var createImage = require('./support.js').createImage;
 var SAT = require('./SAT.min');
 
 var Map = function(options, queuer){
@@ -1612,7 +1598,7 @@ Map.prototype.render = function(character, ctx, mode){
 
 module.exports = exports = Map;
 
-},{"./SAT.min":1,"./createImage":3,"lodash":11}],9:[function(require,module,exports){
+},{"./SAT.min":1,"./support.js":10,"lodash":11}],8:[function(require,module,exports){
 var Game = require('./game.js');
 var map1 = require('./level1.js');
 var map2 = require('./level2.js');
@@ -1628,9 +1614,9 @@ g.loadMap('Bedroom', {x: 260, y: 250});
 
 g.launch();
 
-},{"./game.js":4,"./level1.js":6,"./level2.js":7}],10:[function(require,module,exports){
+},{"./game.js":3,"./level1.js":5,"./level2.js":6}],9:[function(require,module,exports){
 var exports;
-var createImage = require('./createImage');
+var createImage = require('./support.js').creatImage;
 
 var Sprite = function(address, w, h, queuer){
   return {
@@ -1665,7 +1651,27 @@ var Sprite = function(address, w, h, queuer){
 
 module.exports = exports = Sprite;
 
-},{"./createImage":3}],11:[function(require,module,exports){
+},{"./support.js":10}],10:[function(require,module,exports){
+var SAT = require('./SAT.min.js');
+
+var makeVector = function (point){
+    return new SAT.Vector(point.x, point.y);
+};
+
+var createImage = function (url, queuer){
+  var img = new Image();
+  if(queuer){
+    queuer(img);
+  }
+  img.src = url;
+  return img;
+};
+
+exports.makeVector = makeVector;
+exports.createImage = createImage;
+
+module.exports = exports;
+},{"./SAT.min.js":1}],11:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -8454,4 +8460,4 @@ module.exports = exports = Sprite;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[9])
+},{}]},{},[8])

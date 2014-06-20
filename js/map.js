@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var createImage = require('./createImage');
+var createImage = require('./support.js').createImage;
 var SAT = require('./SAT.min');
 
 var Map = function(options, queuer){

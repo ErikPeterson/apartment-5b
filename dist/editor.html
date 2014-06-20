@@ -6,17 +6,23 @@
 </head>
 <body>
   <div id="editor-container">
-  	
+  <div class="container">
     <div id="editor-fields">
-  		<label>Map Width: <input type="number" id="map-width" min="0" placeholder="640"></label>
-  		<label>Map Height: <input type="number" id="map-height" min="0" placeholder="570"></label>
-  		<label>Background Image: <input type="text" id="map-image" min="0" placeholder="570"></label>
-  		<button type="button" id="set-image">Set Background</button>
+    <label>Background Image: <input type="text" id="map-image" placeholder="assets/..."></label>
+      <button type="button" id="set-image">Set Background</button><br /><label>Map Name: <input type="text" id="map-name" placeholder="Bedroom"></label>
   	</div>
-
+  </div>
+  <div class="container">
     <div id="editor-viewport">
     </div>
-    
+  </div>
+  <div class="container">
+    <div id="editor-tools">
+      <ul id="tool-bar">
+        <li class="tool" data-action="newBlock">Block+</li>
+      </ul>
+    </div>
+  </div>
   </div>
   <script src="js/editor.js"></script>
 </body>
