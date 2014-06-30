@@ -80,8 +80,12 @@
 				display: inline-block;
 				position: relative;
 				margin: 0 1em 0 0;
+				cursor: pointer;
 				&:last-of-type{
 					margin-right: 0 !important;
+				}
+				&.active{
+					cursor: default;
 				}
 				&.active, &:hover{
 					background-color: #cccccc;

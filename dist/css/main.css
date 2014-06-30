@@ -116,9 +116,13 @@ body div#game canvas {
   display: inline-block;
   position: relative;
   margin: 0 1em 0 0;
+  cursor: pointer;
 }
 #editor-container #editor-tools #tool-bar .tool:last-of-type {
   margin-right: 0 !important;
+}
+#editor-container #editor-tools #tool-bar .tool.active {
+  cursor: default;
 }
 #editor-container #editor-tools #tool-bar .tool.active, #editor-container #editor-tools #tool-bar .tool:hover {
   background-color: #cccccc;

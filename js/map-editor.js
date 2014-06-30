@@ -58,7 +58,6 @@ MapEditor.prototype.activateToolset = function (toolset, button){
         prevButton = $('.tool.active'),
         prevEl = $('.tool-palette.active');
 
-        debugger;
     if(prevButton){
         removeClass('active', prevButton);
     }
