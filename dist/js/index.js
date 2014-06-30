@@ -14,10 +14,42 @@ return f<=e};m.pointInPolygon=function(b,a){D.pos.c(b);y.clear();var c=C(D,a,y);
 c.overlapV.reverse();c.a=c.b;c.b=d;c.aInB=c.bInA;c.bInA=e}return a};m.testPolygonPolygon=C;return m}"function"===typeof define&&define.amd?define(w):"object"===typeof exports?module.exports=w():this.SAT=w();
 
 },{}],2:[function(require,module,exports){
-var Sprite = require('./sprite');
+var makeVector = require('./support.js').makeVector;
+var _ = require('lodash');
 var SAT = require('./SAT.min.js');
+var Polygon = SAT.Polygon;
+
+var defaults = {
+    type: 'block'
+};
+
+
+var Block = function(offset, points, opts){
+    var obj = _.defaults(opts, defaults),
+        origin = makeVector(offset),
+        vectors = _.map(points, makeVector, this);
+
+        this.box = new Polygon(origin, vectors);
+};
+
+Block.make = function(hash){
+    return new Block(hash.offset, hash.points, hash.options);
+};
+
+Block.makeGroup = function(arr){
+    return _.map(arr, Block.make);
+};
+
+module.exports = exports = Block;
+},{"./SAT.min.js":1,"./support.js":11,"lodash":12}],3:[function(require,module,exports){
+var Sprite = require('./sprite');
+var Box = require('./SAT.min.js').Box;
+var testPolygonPolygon = require('./SAT.min.js').testPolygonPolygon;
+var makeVector = require('./support').makeVector;
 var _ = require('lodash');
 var exports;
+
+var abs = Math.abs;
 
 var Character = function(options){
     this.initialize(options);
@@ -48,71 +80,74 @@ Character.prototype.tick = function(blocks){
   return (this.ticker === 3 ? this.ticker = 0 : this.ticker++);
 };
 
-Character.prototype.go = function (dir, desired, blocks){
-    var collisons,
-        exits = [],
-        box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
+Character.prototype.go = function (dir, desired, blocks, diff){
+    var i = 0,
+        cur = {x: this.x, y: this.y},
+        collisions,
+        exit;
 
-    function testBox(block){
-      return SAT.testPolygonPolygon(box, block.box);
+    for(i; i <= diff; i++){
+      collisions = this.getCollisionsAtCoordinates(cur.x, cur.y, blocks);
+      if(collisions){
+        debugger;
+        exits = _.filter(collisions, 'exit');
+        if(exits[0]){
+          this.exit(exit.exit);
+          return;
+        }
+        return;
+      } else{
+        this.x = cur.x;
+        this.y = cur.y;
+        //THIS IS WHERE YOU'RE AT: No errors, but no movement either. Ticker works, but 
+        cur = increaseByOne(dir, cur);
+      }
     }
-
-    collisions = _.filter(blocks, function(block){
-      return SAT.testPolygonPolygon(box, block.box);
-    });
-
-    exits = _.filter(collisions, function(block){
-      return block.exit;
-    });
-
-    if(exits.length > 0){
-      return this.exit(exits[0]);
-    }
-
-
-    while(collisions.length > 0){
-      desired = reduceByOne(dir, desired);
-      box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
-      collisions = _.filter(blocks, testBox);
-    }
-
-    this.x = desired.x;
-    this.y = desired.y;
 };
+
+
+Character.prototype.getCollisionsAtCoordinates = function(x, y, blocks){
+  var box = new Box(makeVector(x, y + (this.h - 2)), this.w, 2 ).toPolygon(),
+      test = newTest(box);
+  var collisions = _.filter(blocks, test);
+
+  return (collisions.length === 0) ? false : collisions;
+};
+
 
 Character.prototype.exit = function(exit){
   this.game.loadMap(exit.nextroom, exit.startpos);
 };
 
-function reduceByOne(dir, desired){
+function increaseByOne(dir, desired){
   switch (dir){
   case 'left':
-    desired.x = desired.x + 1;
-    break;
-  case 'left back':
-    desired.x = desired.x + 2;
-    desired.y = desired.y + 2;
-    break;
-  case 'left front':
-    desired.x = desired.x + 2;
-    desired.y = desired.y - 2;
-    break;
-  case 'right':
     desired.x = desired.x - 1;
     break;
-  case 'right back':
-    desired.x = desired.x - 2;
-    desired.y = desired.y + 2;
-    break;
-  case 'right front':
-    desired.x = desired.x - 2;
+  case 'left back':
+    desired.x = desired.x - 1;
     desired.y = desired.y - 2;
     break;
+  case 'left front':
+    desired.x = desired.x - 1;
+    desired.y = desired.y + 2;
+    break;
+  case 'right':
+    desired.x = desired.x + 1;
+    break;
+  case 'right back':
+    desired.x = desired.x + 1;
+    desired.y = desired.y - 2;
+    break;
+  case 'right front':
+    desired.x = desired.x + 1;
+    desired.y = desired.y + 2;
+    break;
   case 'front':
-    desired.y = desired.y - 1;
+    desired.y = desired.y + 1;
     break;
   case 'back':
-    desired.y = desired.y + 1;
+    desired.y = desired.y - 1;
     break;
   }
   return desired;
@@ -123,28 +158,28 @@ Character.prototype.move = function(blocks){
 
     switch(this.direction){
     case 'left':
-      this.go('left', { x: this.x - diff, y: this.y }, blocks);
+      this.go('left', { x: this.x - diff, y: this.y }, blocks, diff);
       break;
     case 'left back':
-      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.5) }, blocks);
+      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.5) }, blocks, diff);
       break;
     case 'left front':
-      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.5) }, blocks);
+      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.5) }, blocks, diff);
       break;
     case 'front':
-      this.go('front', { x: this.x, y: this.y + diff }, blocks);
+      this.go('front', { x: this.x, y: this.y + diff }, blocks, diff);
       break;
     case 'right':
-      this.go('right', { x: this.x + diff, y: this.y }, blocks);
+      this.go('right', { x: this.x + diff, y: this.y }, blocks, diff);
       break;
     case 'right front':
-      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.5) }, blocks);
+      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.5) }, blocks, diff);
       break;
     case 'back':
-      this.go('back', { x: this.x, y: this.y - diff }, blocks);
+      this.go('back', { x: this.x, y: this.y - diff }, blocks, diff);
       break;
     case 'right back':
-      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.5) }, blocks);
+      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.5) }, blocks, diff);
       break;
     }
 };
@@ -162,9 +197,15 @@ Character.prototype.maxy = function(){
   return this.y + this.h;
 };
 
+function newTest(box){
+  return function(block){
+    return testPolygonPolygon(box, block.box);
+  };
+}
+
 module.exports = exports = Character;
 
-},{"./SAT.min.js":1,"./sprite":9,"lodash":11}],3:[function(require,module,exports){
+},{"./SAT.min.js":1,"./sprite":10,"./support":11,"lodash":12}],4:[function(require,module,exports){
 var keypress = require('./keypress');
 var Character = require('./character');
 var _ = require('lodash');
@@ -369,7 +410,7 @@ Game.prototype.bindKeys = function(){
 
 module.exports = exports = Game;
 
-},{"./character":2,"./keypress":4,"./map":7,"lodash":11}],4:[function(require,module,exports){
+},{"./character":3,"./keypress":5,"./map":8,"lodash":12}],5:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1420,24 +1461,25 @@ module.exports = exports = Game;
 return keypress;
 }));
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
     objs = [bed],
-    wall1 = {offset: {x: 315, y: 0}, points: [{x: 0, y: 0}, {x: -315, y: 0}, {x:-315,y: 414}, {x:0, y: 257}]},
+    wall1 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 0, y: 0}, {x:0,y: 414}, {x:315, y: 257}]},
     wall2 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 315, y: 257}, {x:630,y: 414}, {x:630, y: 0}]},
     wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 12, y: 510}, {x: 104, y: 464}]},
     wall4 = {offset: {x: 0, y: 0}, points: [{x: 210, y: 517}, {x: 116, y: 564}, {x: 320, y: 570}]},
     wall5 = {offset: {x: 0, y: 0}, points: [{x: 310, y: 570}, {x: 630, y: 570}, {x: 630, y: 414}]},
-    exit = {exit: true, startpos: {x: 448, y: 198}, nextroom: 'TV Set', offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
+    exit = {opts: { type: 'exit', exit: {nextroom: 'TV Set', startpos: {x: 448, y: 198}}}, offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
     bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]},
     blocks = [wall1, wall2, wall3, wall4, wall5, bedblock, exit];
 
 
 var map = {name:'Bedroom', image: 'assets/room1.gif', w: 630, h: 570, objs: objs, blocks: blocks};
 
+
 module.exports = exports = map;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var block1 = {offset: {x:0, y: 0}, points: [
     {x: 315, y: 0},
     {x: 315, y: 248},
@@ -1505,7 +1547,7 @@ var block1 = {offset: {x:0, y: 0}, points: [
     {x: 194, y: 316},
     {x: 194, y: 300},
     {x: 0, y: 398}
-]}, exit = {offset: {x:0, y: 0}, exit: true, nextroom: 'Bedroom', startpos: {x:88, y: 384}, points: [
+]}, exit = {offset: {x:0, y: 0}, opts:{ type: 'exit', exit: {nextroom: 'Bedroom', startpos: {x:88, y: 384}}}, points: [
     {x: 504, y: 292},
     {x: 573, y: 316},
     {x: 569, y: 273}
@@ -1523,10 +1565,11 @@ var map = {name: 'TV Set', image: 'assets/room2.gif', w: 630, h: 570, objs: objs
 
 module.exports = exports = map;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var _ = require('lodash');
 var createImage = require('./support.js').createImage;
 var SAT = require('./SAT.min');
+var Block = require('./block.js');
 
 var Map = function(options, queuer){
   this.initialize(options, queuer);
@@ -1539,17 +1582,7 @@ Map.prototype.initialize = function(options, queuer){
   this.queuer = queuer;
   this.image = createImage(options.image, this.queuer);
   this.objs = this.loadObjects(options.objs);
-  this.blocks = this.makeBoxes(options.blocks);
-};
-
-Map.prototype.makeBoxes = function(blocks){
-  return _.map(blocks, function(el){
-    el.points = _.map(el.points, function(point){
-      return new SAT.Vector(point.x, point.y);
-    });
-    el.box = new SAT.Polygon(new SAT.Vector(el.offset.x, el.offset.y), el.points);
-    return el;
-  }, this);
+  this.blocks = Block.makeGroup(options.blocks);
 };
 
 Map.prototype.loadObjects = function(objs){
@@ -1583,11 +1616,11 @@ Map.prototype.render = function(character, ctx, mode){
       ctx.fillStyle = 'rgba(255, 0, 0, 0.25);';
     _.each(this.blocks, function(block){
       ctx.beginPath();
-      ctx.moveTo(block.points[0].x, block.points[0].y);
-      for(var i = 1; i < block.points.length; i++){
-        ctx.lineTo(block.points[i].x, block.points[i].y);
+      ctx.moveTo(block.box.points[0].x, block.box.points[0].y);
+      for(var i = 1; i < block.box.points.length; i++){
+        ctx.lineTo(block.box.points[i].x, block.box.points[i].y);
       }
-      ctx.lineTo(block.points[0].x, block.points[0].y);
+      ctx.lineTo(block.box.points[0].x, block.box.points[0].y);
       ctx.closePath();
       ctx.fill();
     }, this);
@@ -1598,14 +1631,14 @@ Map.prototype.render = function(character, ctx, mode){
 
 module.exports = exports = Map;
 
-},{"./SAT.min":1,"./support.js":10,"lodash":11}],8:[function(require,module,exports){
+},{"./SAT.min":1,"./block.js":2,"./support.js":11,"lodash":12}],9:[function(require,module,exports){
 var Game = require('./game.js');
 var map1 = require('./level1.js');
 var map2 = require('./level2.js');
 
 var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
 
-var g = new Game('game', kramer);
+var g = new Game('game', kramer, 'debug');
 
 g.registerMap(map1);
 g.registerMap(map2);
@@ -1614,9 +1647,9 @@ g.loadMap('Bedroom', {x: 260, y: 250});
 
 g.launch();
 
-},{"./game.js":3,"./level1.js":5,"./level2.js":6}],9:[function(require,module,exports){
+},{"./game.js":4,"./level1.js":6,"./level2.js":7}],10:[function(require,module,exports){
 var exports;
-var createImage = require('./support.js').creatImage;
+var createImage = require('./support.js').createImage;
 
 var Sprite = function(address, w, h, queuer){
   return {
@@ -1651,14 +1684,16 @@ var Sprite = function(address, w, h, queuer){
 
 module.exports = exports = Sprite;
 
-},{"./support.js":10}],10:[function(require,module,exports){
+},{"./support.js":11}],11:[function(require,module,exports){
 var SAT = require('./SAT.min.js');
+var Vector = SAT.Vector;
+var _ = require('lodash');
 
-var makeVector = function (point){
-    return new SAT.Vector(point.x, point.y);
+exports.makeVector = function (point){
+    return new Vector(point.x, point.y);
 };
 
-var createImage = function (url, queuer){
+exports.createImage = function (url, queuer){
   var img = new Image();
   if(queuer){
     queuer(img);
@@ -1667,11 +1702,8 @@ var createImage = function (url, queuer){
   return img;
 };
 
-exports.makeVector = makeVector;
-exports.createImage = createImage;
-
 module.exports = exports;
-},{"./SAT.min.js":1}],11:[function(require,module,exports){
+},{"./SAT.min.js":1,"lodash":12}],12:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -8460,4 +8492,4 @@ module.exports = exports;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[8])
+},{}]},{},[9])

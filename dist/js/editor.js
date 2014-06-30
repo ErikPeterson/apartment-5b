@@ -14,10 +14,38 @@ return f<=e};m.pointInPolygon=function(b,a){D.pos.c(b);y.clear();var c=C(D,a,y);
 c.overlapV.reverse();c.a=c.b;c.b=d;c.aInB=c.bInA;c.bInA=e}return a};m.testPolygonPolygon=C;return m}"function"===typeof define&&define.amd?define(w):"object"===typeof exports?module.exports=w():this.SAT=w();
 
 },{}],2:[function(require,module,exports){
+var makeVector = require('./support.js').makeVector;
+var _ = require('lodash');
+var SAT = require('./SAT.min.js');
+var Polygon = SAT.Polygon;
+
+var defaults = {
+    type: 'block'
+};
+
+
+var Block = function(offset, points, opts){
+    var obj = _.defaults(opts, defaults),
+        origin = makeVector(offset),
+        vectors = _.map(points, makeVector, this);
+
+        this.box = new Polygon(origin, vectors);
+};
+
+Block.make = function(hash){
+    return new Block(hash.offset, hash.points, hash.options);
+};
+
+Block.makeGroup = function(arr){
+    return _.map(arr, Block.make);
+};
+
+module.exports = exports = Block;
+},{"./SAT.min.js":1,"./support.js":7,"lodash":8}],3:[function(require,module,exports){
 var MapEditor = require('./map-editor.js');
 //
 e = new MapEditor();
-},{"./map-editor.js":4}],3:[function(require,module,exports){
+},{"./map-editor.js":5}],4:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1068,7 +1096,7 @@ e = new MapEditor();
 return keypress;
 }));
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var map = require('./map.js');
 var keypress = require('./keypress.js');
 var createImage = require('./support.js').createImage;
@@ -1179,10 +1207,11 @@ MapEditor.prototype.draw = function(){
 };
 
 module.exports = exports = MapEditor;
-},{"./keypress.js":3,"./map.js":5,"./support.js":6}],5:[function(require,module,exports){
+},{"./keypress.js":4,"./map.js":6,"./support.js":7}],6:[function(require,module,exports){
 var _ = require('lodash');
 var createImage = require('./support.js').createImage;
 var SAT = require('./SAT.min');
+var Block = require('./block.js');
 
 var Map = function(options, queuer){
   this.initialize(options, queuer);
@@ -1195,17 +1224,7 @@ Map.prototype.initialize = function(options, queuer){
   this.queuer = queuer;
   this.image = createImage(options.image, this.queuer);
   this.objs = this.loadObjects(options.objs);
-  this.blocks = this.makeBoxes(options.blocks);
-};
-
-Map.prototype.makeBoxes = function(blocks){
-  return _.map(blocks, function(el){
-    el.points = _.map(el.points, function(point){
-      return new SAT.Vector(point.x, point.y);
-    });
-    el.box = new SAT.Polygon(new SAT.Vector(el.offset.x, el.offset.y), el.points);
-    return el;
-  }, this);
+  this.blocks = Block.makeGroup(options.blocks);
 };
 
 Map.prototype.loadObjects = function(objs){
@@ -1239,11 +1258,11 @@ Map.prototype.render = function(character, ctx, mode){
       ctx.fillStyle = 'rgba(255, 0, 0, 0.25);';
     _.each(this.blocks, function(block){
       ctx.beginPath();
-      ctx.moveTo(block.points[0].x, block.points[0].y);
-      for(var i = 1; i < block.points.length; i++){
-        ctx.lineTo(block.points[i].x, block.points[i].y);
+      ctx.moveTo(block.box.points[0].x, block.box.points[0].y);
+      for(var i = 1; i < block.box.points.length; i++){
+        ctx.lineTo(block.box.points[i].x, block.box.points[i].y);
       }
-      ctx.lineTo(block.points[0].x, block.points[0].y);
+      ctx.lineTo(block.box.points[0].x, block.box.points[0].y);
       ctx.closePath();
       ctx.fill();
     }, this);
@@ -1254,14 +1273,16 @@ Map.prototype.render = function(character, ctx, mode){
 
 module.exports = exports = Map;
 
-},{"./SAT.min":1,"./support.js":6,"lodash":7}],6:[function(require,module,exports){
+},{"./SAT.min":1,"./block.js":2,"./support.js":7,"lodash":8}],7:[function(require,module,exports){
 var SAT = require('./SAT.min.js');
+var Vector = SAT.Vector;
+var _ = require('lodash');
 
-var makeVector = function (point){
-    return new SAT.Vector(point.x, point.y);
+exports.makeVector = function (point){
+    return new Vector(point.x, point.y);
 };
 
-var createImage = function (url, queuer){
+exports.createImage = function (url, queuer){
   var img = new Image();
   if(queuer){
     queuer(img);
@@ -1270,11 +1291,8 @@ var createImage = function (url, queuer){
   return img;
 };
 
-exports.makeVector = makeVector;
-exports.createImage = createImage;
-
 module.exports = exports;
-},{"./SAT.min.js":1}],7:[function(require,module,exports){
+},{"./SAT.min.js":1,"lodash":8}],8:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -8063,4 +8081,4 @@ module.exports = exports;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[2])
+},{}]},{},[3])

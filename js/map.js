@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var createImage = require('./support.js').createImage;
 var SAT = require('./SAT.min');
+var Block = require('./block.js');
 
 var Map = function(options, queuer){
   this.initialize(options, queuer);
@@ -13,17 +14,7 @@ Map.prototype.initialize = function(options, queuer){
   this.queuer = queuer;
   this.image = createImage(options.image, this.queuer);
   this.objs = this.loadObjects(options.objs);
-  this.blocks = this.makeBoxes(options.blocks);
-};
-
-Map.prototype.makeBoxes = function(blocks){
-  return _.map(blocks, function(el){
-    el.points = _.map(el.points, function(point){
-      return new SAT.Vector(point.x, point.y);
-    });
-    el.box = new SAT.Polygon(new SAT.Vector(el.offset.x, el.offset.y), el.points);
-    return el;
-  }, this);
+  this.blocks = Block.makeGroup(options.blocks);
 };
 
 Map.prototype.loadObjects = function(objs){
@@ -57,11 +48,11 @@ Map.prototype.render = function(character, ctx, mode){
       ctx.fillStyle = 'rgba(255, 0, 0, 0.25);';
     _.each(this.blocks, function(block){
       ctx.beginPath();
-      ctx.moveTo(block.points[0].x, block.points[0].y);
-      for(var i = 1; i < block.points.length; i++){
-        ctx.lineTo(block.points[i].x, block.points[i].y);
+      ctx.moveTo(block.box.points[0].x, block.box.points[0].y);
+      for(var i = 1; i < block.box.points.length; i++){
+        ctx.lineTo(block.box.points[i].x, block.box.points[i].y);
       }
-      ctx.lineTo(block.points[0].x, block.points[0].y);
+      ctx.lineTo(block.box.points[0].x, block.box.points[0].y);
       ctx.closePath();
       ctx.fill();
     }, this);

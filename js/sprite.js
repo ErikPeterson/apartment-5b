@@ -1,5 +1,5 @@
 var exports;
-var createImage = require('./support.js').creatImage;
+var createImage = require('./support.js').createImage;
 
 var Sprite = function(address, w, h, queuer){
   return {

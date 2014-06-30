@@ -1,10 +1,12 @@
 var SAT = require('./SAT.min.js');
+var Vector = SAT.Vector;
+var _ = require('lodash');
 
-var makeVector = function (point){
-    return new SAT.Vector(point.x, point.y);
+exports.makeVector = function (point){
+    return new Vector(point.x, point.y);
 };
 
-var createImage = function (url, queuer){
+exports.createImage = function (url, queuer){
   var img = new Image();
   if(queuer){
     queuer(img);
@@ -12,8 +14,5 @@ var createImage = function (url, queuer){
   img.src = url;
   return img;
 };
-
-exports.makeVector = makeVector;
-exports.createImage = createImage;
 
 module.exports = exports;

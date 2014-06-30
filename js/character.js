@@ -1,7 +1,11 @@
 var Sprite = require('./sprite');
-var SAT = require('./SAT.min.js');
+var Box = require('./SAT.min.js').Box;
+var testPolygonPolygon = require('./SAT.min.js').testPolygonPolygon;
+var makeVector = require('./support').makeVector;
 var _ = require('lodash');
 var exports;
+
+var abs = Math.abs;
 
 var Character = function(options){
     this.initialize(options);
@@ -32,71 +36,74 @@ Character.prototype.tick = function(blocks){
   return (this.ticker === 3 ? this.ticker = 0 : this.ticker++);
 };
 
-Character.prototype.go = function (dir, desired, blocks){
-    var collisons,
-        exits = [],
-        box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
+Character.prototype.go = function (dir, desired, blocks, diff){
+    var i = 0,
+        cur = {x: this.x, y: this.y},
+        collisions,
+        exit;
 
-    function testBox(block){
-      return SAT.testPolygonPolygon(box, block.box);
+    for(i; i <= diff; i++){
+      collisions = this.getCollisionsAtCoordinates(cur.x, cur.y, blocks);
+      if(collisions){
+        debugger;
+        exits = _.filter(collisions, 'exit');
+        if(exits[0]){
+          this.exit(exit.exit);
+          return;
+        }
+        return;
+      } else{
+        this.x = cur.x;
+        this.y = cur.y;
+        //THIS IS WHERE YOU'RE AT: No errors, but no movement either. Ticker works, but 
+        cur = increaseByOne(dir, cur);
+      }
     }
-
-    collisions = _.filter(blocks, function(block){
-      return SAT.testPolygonPolygon(box, block.box);
-    });
-
-    exits = _.filter(collisions, function(block){
-      return block.exit;
-    });
-
-    if(exits.length > 0){
-      return this.exit(exits[0]);
-    }
-
-
-    while(collisions.length > 0){
-      desired = reduceByOne(dir, desired);
-      box = new SAT.Box(new SAT.Vector(desired.x, desired.y + (this.h - 2)), this.w, 2 ).toPolygon();
-      collisions = _.filter(blocks, testBox);
-    }
-
-    this.x = desired.x;
-    this.y = desired.y;
 };
+
+
+Character.prototype.getCollisionsAtCoordinates = function(x, y, blocks){
+  var box = new Box(makeVector(x, y + (this.h - 2)), this.w, 2 ).toPolygon(),
+      test = newTest(box);
+  var collisions = _.filter(blocks, test);
+
+  return (collisions.length === 0) ? false : collisions;
+};
+
 
 Character.prototype.exit = function(exit){
   this.game.loadMap(exit.nextroom, exit.startpos);
 };
 
-function reduceByOne(dir, desired){
+function increaseByOne(dir, desired){
   switch (dir){
   case 'left':
-    desired.x = desired.x + 1;
-    break;
-  case 'left back':
-    desired.x = desired.x + 2;
-    desired.y = desired.y + 2;
-    break;
-  case 'left front':
-    desired.x = desired.x + 2;
-    desired.y = desired.y - 2;
-    break;
-  case 'right':
     desired.x = desired.x - 1;
     break;
-  case 'right back':
-    desired.x = desired.x - 2;
-    desired.y = desired.y + 2;
-    break;
-  case 'right front':
-    desired.x = desired.x - 2;
+  case 'left back':
+    desired.x = desired.x - 1;
     desired.y = desired.y - 2;
     break;
+  case 'left front':
+    desired.x = desired.x - 1;
+    desired.y = desired.y + 2;
+    break;
+  case 'right':
+    desired.x = desired.x + 1;
+    break;
+  case 'right back':
+    desired.x = desired.x + 1;
+    desired.y = desired.y - 2;
+    break;
+  case 'right front':
+    desired.x = desired.x + 1;
+    desired.y = desired.y + 2;
+    break;
   case 'front':
-    desired.y = desired.y - 1;
+    desired.y = desired.y + 1;
     break;
   case 'back':
-    desired.y = desired.y + 1;
+    desired.y = desired.y - 1;
     break;
   }
   return desired;
@@ -107,28 +114,28 @@ Character.prototype.move = function(blocks){
 
     switch(this.direction){
     case 'left':
-      this.go('left', { x: this.x - diff, y: this.y }, blocks);
+      this.go('left', { x: this.x - diff, y: this.y }, blocks, diff);
       break;
     case 'left back':
-      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.5) }, blocks);
+      this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.5) }, blocks, diff);
       break;
     case 'left front':
-      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.5) }, blocks);
+      this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.5) }, blocks, diff);
       break;
     case 'front':
-      this.go('front', { x: this.x, y: this.y + diff }, blocks);
+      this.go('front', { x: this.x, y: this.y + diff }, blocks, diff);
       break;
     case 'right':
-      this.go('right', { x: this.x + diff, y: this.y }, blocks);
+      this.go('right', { x: this.x + diff, y: this.y }, blocks, diff);
       break;
     case 'right front':
-      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.5) }, blocks);
+      this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.5) }, blocks, diff);
       break;
     case 'back':
-      this.go('back', { x: this.x, y: this.y - diff }, blocks);
+      this.go('back', { x: this.x, y: this.y - diff }, blocks, diff);
       break;
     case 'right back':
-      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.5) }, blocks);
+      this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.5) }, blocks, diff);
       break;
     }
 };
@@ -145,5 +152,11 @@ Character.prototype.getSpriteState = function(){
 Character.prototype.maxy = function(){
   return this.y + this.h;
 };
+
+function newTest(box){
+  return function(block){
+    return testPolygonPolygon(box, block.box);
+  };
+}
 
 module.exports = exports = Character;
