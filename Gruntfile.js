@@ -29,6 +29,14 @@ module.exports = function(grunt){
           dest:'./dist/'
         }
         ]
+      },
+      fonts: {
+        files: [{
+          expand: true,
+          cwd: './',
+          src: ['assets/fonts/*'],
+          dest: 'dist/'
+        }]
       }
     },
     sass:{
@@ -66,7 +74,7 @@ module.exports = function(grunt){
         tasks: ['jshint','browserify']
       },
       sass: {
-        files: './sass/*.scss',
+        files: './sass/**/*.scss',
         tasks: ['sass', 'autoprefixer']
       },
       html: {

@@ -20,7 +20,11 @@ exports.addClass = function (classname, el){
         classlist = el.getAttribute('class') || '';
 
         if(!regex.test(classlist)){
-            el.setAttribute('class', classlist + ' ' + classname);
+            if(classlist === ''){    
+                el.setAttribute('class', classname);
+            } else {
+                el.setAttribute('class', classlist + ' ' + classname);
+            }
         }
 };
 

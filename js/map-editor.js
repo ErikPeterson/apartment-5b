@@ -61,9 +61,11 @@ MapEditor.prototype.activateToolset = function (toolset, button){
     if(prevButton){
         removeClass('active', prevButton);
     }
+
     if(prevEl){
         removeClass('active', prevEl);
     }
+    
     addClass('active', button);
     addClass('active', el);
     

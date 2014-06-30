@@ -1166,9 +1166,11 @@ MapEditor.prototype.activateToolset = function (toolset, button){
     if(prevButton){
         removeClass('active', prevButton);
     }
+
     if(prevEl){
         removeClass('active', prevEl);
     }
+    
     addClass('active', button);
     addClass('active', el);
     
@@ -1322,7 +1324,11 @@ exports.addClass = function (classname, el){
         classlist = el.getAttribute('class') || '';
 
         if(!regex.test(classlist)){
-            el.setAttribute('class', classlist + ' ' + classname);
+            if(classlist === ''){    
+                el.setAttribute('class', classname);
+            } else {
+                el.setAttribute('class', classlist + ' ' + classname);
+            }
         }
 };
 
