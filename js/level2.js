@@ -65,7 +65,7 @@ var block1 = {offset: {x:0, y: 0}, points: [
     {x: 194, y: 316},
     {x: 194, y: 300},
     {x: 0, y: 398}
-]}, exit = {offset: {x:0, y: 0}, opts:{ type: 'exit', exit: {nextroom: 'Bedroom', startpos: {x:88, y: 384}}}, points: [
+]}, exit = {offset: {x:0, y: 0}, opts:{ blockType: 'exit', exit: {nextroom: 'Bedroom', startpos: {x:88, y: 384}}}, points: [
     {x: 504, y: 292},
     {x: 573, y: 316},
     {x: 569, y: 273}

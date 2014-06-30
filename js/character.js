@@ -42,11 +42,18 @@ Character.prototype.go = function (dir, desired, blocks, diff){
         collisions,
         exit;
 
+    function isExit (block){
+      return block.blockType === 'exit';
+    }
+
     for(i; i <= diff; i++){
       collisions = this.getCollisionsAtCoordinates(cur.x, cur.y, blocks);
       if(collisions){
-        exits = _.filter(collisions, 'exit');
+
+        exits = _.filter(collisions, isExit);
+        
         if(exits[0]){
+          exit = exits[0];
           this.exit(exit.exit);
           return;
         }
@@ -54,7 +61,7 @@ Character.prototype.go = function (dir, desired, blocks, diff){
       } else{
         this.x = cur.x;
         this.y = cur.y;
-        //THIS IS WHERE YOU'RE AT: No errors, but no movement either. Ticker works, but 
+
         cur = increaseByOne(dir, cur);
       }
     }
@@ -64,7 +71,7 @@ Character.prototype.go = function (dir, desired, blocks, diff){
 Character.prototype.getCollisionsAtCoordinates = function(x, y, blocks){
   var box = new Box(makeVector({x: x, y: y + (this.h - 2)}), this.w, 2 ).toPolygon(),
       test = newTest(box);
-      
+
   var collisions = _.filter(blocks, test);
 
   return (collisions.length === 0) ? false : collisions;

@@ -29,11 +29,17 @@ var Block = function(offset, points, opts){
         origin = makeVector(offset),
         vectors = _.map(points, makeVector, this);
 
+        opts = opts || {};
         this.box = new Polygon(origin, vectors);
+        this.blockType = opts.blockType || 'block';
+
+        if(this.blockType === 'exit'){
+            this.exit = _.clone(opts.exit, true);
+        }
 };
 
 Block.make = function(hash){
-    return new Block(hash.offset, hash.points, hash.options);
+    return new Block(hash.offset, hash.points, hash.opts);
 };
 
 Block.makeGroup = function(arr){
@@ -86,11 +92,18 @@ Character.prototype.go = function (dir, desired, blocks, diff){
         collisions,
         exit;
 
+    function isExit (block){
+      return block.blockType === 'exit';
+    }
+
     for(i; i <= diff; i++){
       collisions = this.getCollisionsAtCoordinates(cur.x, cur.y, blocks);
       if(collisions){
-        exits = _.filter(collisions, 'exit');
+
+        exits = _.filter(collisions, isExit);
+        
         if(exits[0]){
+          exit = exits[0];
           this.exit(exit.exit);
           return;
         }
@@ -98,7 +111,7 @@ Character.prototype.go = function (dir, desired, blocks, diff){
       } else{
         this.x = cur.x;
         this.y = cur.y;
-        //THIS IS WHERE YOU'RE AT: No errors, but no movement either. Ticker works, but 
+
         cur = increaseByOne(dir, cur);
       }
     }
@@ -108,7 +121,7 @@ Character.prototype.go = function (dir, desired, blocks, diff){
 Character.prototype.getCollisionsAtCoordinates = function(x, y, blocks){
   var box = new Box(makeVector({x: x, y: y + (this.h - 2)}), this.w, 2 ).toPolygon(),
       test = newTest(box);
-      
+
   var collisions = _.filter(blocks, test);
 
   return (collisions.length === 0) ? false : collisions;
@@ -1469,7 +1482,7 @@ var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
     wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 12, y: 510}, {x: 104, y: 464}]},
     wall4 = {offset: {x: 0, y: 0}, points: [{x: 210, y: 517}, {x: 116, y: 564}, {x: 320, y: 570}]},
     wall5 = {offset: {x: 0, y: 0}, points: [{x: 310, y: 570}, {x: 630, y: 570}, {x: 630, y: 414}]},
-    exit = {opts: { type: 'exit', exit: {nextroom: 'TV Set', startpos: {x: 448, y: 198}}}, offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
+    exit = {opts: { blockType: 'exit', exit: {nextroom: 'TV Set', startpos: {x: 448, y: 198}}}, offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
     bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]},
     blocks = [wall1, wall2, wall3, wall4, wall5, bedblock, exit];
 
@@ -1547,7 +1560,7 @@ var block1 = {offset: {x:0, y: 0}, points: [
     {x: 194, y: 316},
     {x: 194, y: 300},
     {x: 0, y: 398}
-]}, exit = {offset: {x:0, y: 0}, opts:{ type: 'exit', exit: {nextroom: 'Bedroom', startpos: {x:88, y: 384}}}, points: [
+]}, exit = {offset: {x:0, y: 0}, opts:{ blockType: 'exit', exit: {nextroom: 'Bedroom', startpos: {x:88, y: 384}}}, points: [
     {x: 504, y: 292},
     {x: 573, y: 316},
     {x: 569, y: 273}
