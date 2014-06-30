@@ -27,6 +27,11 @@ body div#game canvas {
   position: absolute;
 }
 
+.label {
+  display: inline-block;
+  font-size: .75em;
+}
+
 #editor-container {
   position: relative;
   display: block;
@@ -82,11 +87,42 @@ body div#game canvas {
   display: block;
   position: relative;
 }
-#editor-container #tools-container {
+#editor-container #editor-tools {
   height: auto;
   position: relative;
   display: inline-block;
   width: auto;
+  box-sizing: border-box;
+  padding: .75em;
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: .5em 1em .5em 1em;
+}
+#editor-container #editor-tools #tool-bar {
+  display: inline-block;
+  position: relative;
+  height: auto;
+  text-align: center;
+  width: auto;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0em 0em 0em 1em;
+}
+#editor-container #editor-tools #tool-bar .tool {
+  box-sizing: border-box;
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: .5em;
+  display: inline-block;
+  position: relative;
+  margin: 0 1em 0 0;
+}
+#editor-container #editor-tools #tool-bar .tool:last-of-type {
+  margin-right: 0 !important;
+}
+#editor-container #editor-tools #tool-bar .tool.active, #editor-container #editor-tools #tool-bar .tool:hover {
+  background-color: #cccccc;
+  text-shadow: 0px -2px 0px white, 2px -2px 0px white, 2px 0px 0px white, 2px 2px 0px white, 0px 2px 0px white, -2px 2px 0px white, -2px 0px 0px white;
 }
 
 .hidden {

@@ -1,15 +1,12 @@
 var map = require('./map.js');
 var keypress = require('./keypress.js');
 var createImage = require('./support.js').createImage;
+var addClass = require('./support.js').addClass;
+var removeClass = require('./support.js').removeClass;
 var $ = document.querySelector.bind(document);
 
+
 var MapEditor = function(){
-    this.initialize();
-};
-
-
-
-MapEditor.prototype.initialize = function(){
     this.targetFps = 30;
     this.container = $('#editor-container');
     this.viewport = $('#editor-viewport');
@@ -43,10 +40,34 @@ MapEditor.prototype.bindEvents = function(){
     }, true);
 
     that.nameField.addEventListener('change', function(e){
-        var name = that.nameField.value;
-        that.name = name;
-        console.log(that.name);
+        that.mapName = that.nameField.value;
     });
+
+    that.toolsContainer.querySelector('#tool-bar').addEventListener('click', function (e){
+        var data = e.target.dataset;
+        if(data.toolset){
+            that.activateToolset(data.toolset, e.target);
+        }
+        
+    });
+};
+
+MapEditor.prototype.activateToolset = function (toolset, button){
+    var selector = '#' + toolset + '-palette',
+        el = $(selector),
+        prevButton = $('.tool.active'),
+        prevEl = $('.tool-palette.active');
+
+        debugger;
+    if(prevButton){
+        removeClass('active', prevButton);
+    }
+    if(prevEl){
+        removeClass('active', prevEl);
+    }
+    addClass('active', button);
+    addClass('active', el);
+    
 };
 
 MapEditor.prototype.setBg = function(){

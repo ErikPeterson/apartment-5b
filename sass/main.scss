@@ -26,4 +26,9 @@ body{
   }
 }
 
+.label{
+  display: inline-block;
+  font-size: .75em;
+}
+
 @import 'editor';
