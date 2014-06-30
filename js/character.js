@@ -45,7 +45,6 @@ Character.prototype.go = function (dir, desired, blocks, diff){
     for(i; i <= diff; i++){
       collisions = this.getCollisionsAtCoordinates(cur.x, cur.y, blocks);
       if(collisions){
-        debugger;
         exits = _.filter(collisions, 'exit');
         if(exits[0]){
           this.exit(exit.exit);
@@ -63,8 +62,9 @@ Character.prototype.go = function (dir, desired, blocks, diff){
 
 
 Character.prototype.getCollisionsAtCoordinates = function(x, y, blocks){
-  var box = new Box(makeVector(x, y + (this.h - 2)), this.w, 2 ).toPolygon(),
+  var box = new Box(makeVector({x: x, y: y + (this.h - 2)}), this.w, 2 ).toPolygon(),
       test = newTest(box);
+      
   var collisions = _.filter(blocks, test);
 
   return (collisions.length === 0) ? false : collisions;
