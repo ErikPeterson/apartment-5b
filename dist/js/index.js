@@ -138,23 +138,23 @@ function increaseByOne(dir, desired){
     desired.x = desired.x - 1;
     break;
   case 'left back':
-    desired.x = desired.x - 1;
-    desired.y = desired.y - 2;
+    desired.x = desired.x - 2;
+    desired.y = desired.y - 1;
     break;
   case 'left front':
-    desired.x = desired.x - 1;
-    desired.y = desired.y + 2;
+    desired.x = desired.x - 2;
+    desired.y = desired.y + 1;
     break;
   case 'right':
     desired.x = desired.x + 1;
     break;
   case 'right back':
-    desired.x = desired.x + 1;
-    desired.y = desired.y - 2;
+    desired.x = desired.x + 2;
+    desired.y = desired.y - 1;
     break;
   case 'right front':
-    desired.x = desired.x + 1;
-    desired.y = desired.y + 2;
+    desired.x = desired.x + 2;
+    desired.y = desired.y + 1;
     break;
   case 'front':
     desired.y = desired.y + 1;
@@ -174,9 +174,11 @@ Character.prototype.move = function(blocks){
       this.go('left', { x: this.x - diff, y: this.y }, blocks, diff);
       break;
     case 'left back':
+      diff = diff / 2;
       this.go('left back', { x: this.x - (diff), y: this.y - (diff * 0.5) }, blocks, diff);
       break;
     case 'left front':
+      diff = diff / 2;
       this.go('left front', { x: this.x - (diff), y: this.y + (diff * 0.5) }, blocks, diff);
       break;
     case 'front':
@@ -186,12 +188,14 @@ Character.prototype.move = function(blocks){
       this.go('right', { x: this.x + diff, y: this.y }, blocks, diff);
       break;
     case 'right front':
+      diff = diff / 2;
       this.go('right front', { x: this.x + (diff), y: this.y + (diff * 0.5) }, blocks, diff);
       break;
     case 'back':
       this.go('back', { x: this.x, y: this.y - diff }, blocks, diff);
       break;
     case 'right back':
+      diff = diff / 2;
       this.go('right back', { x: this.x + (diff), y: this.y - (diff * 0.5) }, blocks, diff);
       break;
     }
@@ -8528,4 +8532,4 @@ module.exports = exports;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[9])
+},{}]},{},[9]);
