@@ -1108,11 +1108,13 @@ var keypress = require('./keypress.js');
 var createImage = require('./support.js').createImage;
 var addClass = require('./support.js').addClass;
 var removeClass = require('./support.js').removeClass;
-var $ = document.querySelector.bind(document);
+var _ = require('lodash');
+var $ = _.bind(document.querySelector, document);
 
 
 var MapEditor = function(){
     this.targetFps = 30;
+    this.tools = {};
     this.container = $('#editor-container');
     this.viewport = $('#editor-viewport');
     this.fields = $('#editor-fields');
@@ -1176,6 +1178,10 @@ MapEditor.prototype.activateToolset = function (toolset, button){
     
 };
 
+MapEditor.prototype.registerTool = function (name, fn){
+    this.tools[name] = _.bind(fn, this);
+};
+
 MapEditor.prototype.setBg = function(){
     var val = this.imageField.value,
         reg =/^\s+$/;
@@ -1235,7 +1241,7 @@ MapEditor.prototype.draw = function(){
 };
 
 module.exports = exports = MapEditor;
-},{"./keypress.js":4,"./map.js":6,"./support.js":7}],6:[function(require,module,exports){
+},{"./keypress.js":4,"./map.js":6,"./support.js":7,"lodash":8}],6:[function(require,module,exports){
 var _ = require('lodash');
 var createImage = require('./support.js').createImage;
 var SAT = require('./SAT.min');

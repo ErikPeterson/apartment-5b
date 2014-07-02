@@ -3,11 +3,13 @@ var keypress = require('./keypress.js');
 var createImage = require('./support.js').createImage;
 var addClass = require('./support.js').addClass;
 var removeClass = require('./support.js').removeClass;
-var $ = document.querySelector.bind(document);
+var _ = require('lodash');
+var $ = _.bind(document.querySelector, document);
 
 
 var MapEditor = function(){
     this.targetFps = 30;
+    this.tools = {};
     this.container = $('#editor-container');
     this.viewport = $('#editor-viewport');
     this.fields = $('#editor-fields');
@@ -69,6 +71,10 @@ MapEditor.prototype.activateToolset = function (toolset, button){
     addClass('active', button);
     addClass('active', el);
     
+};
+
+MapEditor.prototype.registerTool = function (name, fn){
+    this.tools[name] = _.bind(fn, this);
 };
 
 MapEditor.prototype.setBg = function(){
