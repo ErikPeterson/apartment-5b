@@ -1304,18 +1304,14 @@ Map.prototype.render = function(character, ctx, mode){
   var toggle = 0;
   ctx.drawImage(this.image, 0, 0);
   _.each(this.objs, function(obj){
-      if(toggle === 0){
-        if(character.maxy() <= obj.cutoff){
+      if(toggle === 0 && character.maxy() <= obj.cutoff ){
           toggle = 1;
           character.render(ctx);
           ctx.drawImage(obj.image, obj.x, obj.y);
-        } else{
-          ctx.drawImage(obj.image, obj.x, obj.y);
-        }
       } else{
           ctx.drawImage(obj.image, obj.x, obj.y);
       }
-  }, this);
+  });
   if(toggle === 0){
     character.render(ctx);
   }

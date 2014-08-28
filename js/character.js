@@ -69,7 +69,7 @@ Character.prototype.go = function (dir, desired, blocks, diff){
 
 
 Character.prototype.getCollisionsAtCoordinates = function(x, y, blocks){
-  var box = new Box(makeVector({x: x, y: y + (this.h - 2)}), this.w, 2 ).toPolygon(),
+  var box = new Box(makeVector({x: x + 4, y: y + (this.h - 2)}), this.w - 8, 4 ).toPolygon(),
       test = newTest(box);
 
   var collisions = _.filter(blocks, test);

@@ -125,7 +125,7 @@ Character.prototype.go = function (dir, desired, blocks, diff){
 
 
 Character.prototype.getCollisionsAtCoordinates = function(x, y, blocks){
-  var box = new Box(makeVector({x: x, y: y + (this.h - 2)}), this.w, 2 ).toPolygon(),
+  var box = new Box(makeVector({x: x + 4, y: y + (this.h - 2)}), this.w - 8, 4 ).toPolygon(),
       test = newTest(box);
 
   var collisions = _.filter(blocks, test);
@@ -1645,18 +1645,14 @@ Map.prototype.render = function(character, ctx, mode){
   var toggle = 0;
   ctx.drawImage(this.image, 0, 0);
   _.each(this.objs, function(obj){
-      if(toggle === 0){
-        if(character.maxy() <= obj.cutoff){
+      if(toggle === 0 && character.maxy() <= obj.cutoff ){
           toggle = 1;
           character.render(ctx);
           ctx.drawImage(obj.image, obj.x, obj.y);
-        } else{
-          ctx.drawImage(obj.image, obj.x, obj.y);
-        }
       } else{
           ctx.drawImage(obj.image, obj.x, obj.y);
       }
-  }, this);
+  });
   if(toggle === 0){
     character.render(ctx);
   }
