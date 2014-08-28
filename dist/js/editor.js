@@ -29,17 +29,23 @@ var Block = function(offset, points, opts){
         origin = makeVector(offset),
         vectors = _.map(points, makeVector, this);
 
-        opts = opts || {};
+        this.opts = opts || {};
+        this.offset = offset;
+        this.points = points;
         this.box = new Polygon(origin, vectors);
-        this.blockType = opts.blockType || 'block';
+        this.blockType = this.opts.blockType || 'block';
 
         if(this.blockType === 'exit'){
-            this.exit = _.clone(opts.exit, true);
+            this.exit = _.clone(this.opts.exit, true);
         }
 };
 
 Block.make = function(hash){
     return new Block(hash.offset, hash.points, hash.opts);
+};
+
+Block.prototype.toHash = function(){
+    return {offset: this.offset, points: this.points, opts: this.opts};
 };
 
 Block.makeGroup = function(arr){
@@ -50,7 +56,7 @@ module.exports = exports = Block;
 },{"./SAT.min.js":1,"./support.js":7,"lodash":8}],3:[function(require,module,exports){
 var MapEditor = require('./map-editor.js');
 //
-e = new MapEditor();
+var e = new MapEditor();
 },{"./map-editor.js":5}],4:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -1261,13 +1267,38 @@ Map.prototype.initialize = function(options, queuer){
   this.blocks = Block.makeGroup(options.blocks);
 };
 
+Map.prototype.addBlock = function(block){
+  this.blocks.push(Block.make(block));
+};
+
+Map.prototype.addObj = function(obj){
+  obj.imagePath = obj.image;
+  obj.image = createImage(el.image, this.queuer);
+  this.objs.splice(_.sortedIndex(this.objs, obj, 'cutoff'), 0, obj);
+};
+
+Map.prototype.toJSON = function(){
+  return JSON.stringify({
+    name: this.name,
+    width: this.width,
+    objs: _.map(this.objs, function(obj){
+      return {cutoff: obj.cutoff, image: obj.imagePath};
+    }),
+    blocks: _.map(this.blocks, function(block){
+      return block.toHash();
+    })
+  });
+};
+
 Map.prototype.loadObjects = function(objs){
   var Objs = _.map(objs, function(el){
+    el.imagePath = el.image;
     el.image = createImage(el.image, this.queuer);
     return el;
   }, this);
-  return _.sortBy(Objs, function(el){return el.cutoff;});
+  return _.sortBy(Objs, 'cutoff');
 };
+
 
 Map.prototype.render = function(character, ctx, mode){
   var toggle = 0;
@@ -8138,4 +8169,4 @@ module.exports = exports;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[3]);
+},{}]},{},[3])

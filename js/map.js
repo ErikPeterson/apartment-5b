@@ -17,13 +17,38 @@ Map.prototype.initialize = function(options, queuer){
   this.blocks = Block.makeGroup(options.blocks);
 };
 
+Map.prototype.addBlock = function(block){
+  this.blocks.push(Block.make(block));
+};
+
+Map.prototype.addObj = function(obj){
+  obj.imagePath = obj.image;
+  obj.image = createImage(el.image, this.queuer);
+  this.objs.splice(_.sortedIndex(this.objs, obj, 'cutoff'), 0, obj);
+};
+
+Map.prototype.toJSON = function(){
+  return JSON.stringify({
+    name: this.name,
+    width: this.width,
+    objs: _.map(this.objs, function(obj){
+      return {cutoff: obj.cutoff, image: obj.imagePath};
+    }),
+    blocks: _.map(this.blocks, function(block){
+      return block.toHash();
+    })
+  });
+};
+
 Map.prototype.loadObjects = function(objs){
   var Objs = _.map(objs, function(el){
+    el.imagePath = el.image;
     el.image = createImage(el.image, this.queuer);
     return el;
   }, this);
-  return _.sortBy(Objs, function(el){return el.cutoff;});
+  return _.sortBy(Objs, 'cutoff');
 };
+
 
 Map.prototype.render = function(character, ctx, mode){
   var toggle = 0;

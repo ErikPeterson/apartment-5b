@@ -12,3 +12,5 @@ g.registerMap(map2);
 g.loadMap('Bedroom', {x: 260, y: 250});
 
 g.launch();
+
+console.log(g.maps.Bedroom.toJSON());

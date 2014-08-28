@@ -13,17 +13,23 @@ var Block = function(offset, points, opts){
         origin = makeVector(offset),
         vectors = _.map(points, makeVector, this);
 
-        opts = opts || {};
+        this.opts = opts || {};
+        this.offset = offset;
+        this.points = points;
         this.box = new Polygon(origin, vectors);
-        this.blockType = opts.blockType || 'block';
+        this.blockType = this.opts.blockType || 'block';
 
         if(this.blockType === 'exit'){
-            this.exit = _.clone(opts.exit, true);
+            this.exit = _.clone(this.opts.exit, true);
         }
 };
 
 Block.make = function(hash){
     return new Block(hash.offset, hash.points, hash.opts);
+};
+
+Block.prototype.toHash = function(){
+    return {offset: this.offset, points: this.points, opts: this.opts};
 };
 
 Block.makeGroup = function(arr){

@@ -1,3 +1,3 @@
 var MapEditor = require('./map-editor.js');
 //
-e = new MapEditor();
+var e = new MapEditor();
