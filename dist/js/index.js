@@ -318,7 +318,7 @@ Game.prototype.clearCanvas = function(){
 Game.prototype.draw = function(){
     this.clearCanvas();
     this.character.tick(this.map.blocks);
-    this.map.render(this.character, this.ctx, this.mode);
+    this.map.render(this.ctx, this.mode, this.character);
     if(this.map.width > window.outerWidth || this.map.height > window.outerHeight){
       this.reposition();
     }
@@ -1641,21 +1641,30 @@ Map.prototype.loadObjects = function(objs){
 };
 
 
-Map.prototype.render = function(character, ctx, mode){
+Map.prototype.render = function(ctx, mode, character){
   var toggle = 0;
-  ctx.drawImage(this.image, 0, 0);
-  _.each(this.objs, function(obj){
-      if(toggle === 0 && character.maxy() <= obj.cutoff ){
-          toggle = 1;
-          character.render(ctx);
-          ctx.drawImage(obj.image, obj.x, obj.y);
-      } else{
-          ctx.drawImage(obj.image, obj.x, obj.y);
-      }
-  });
-  if(toggle === 0){
-    character.render(ctx);
+
+  if(character){
+
+    ctx.drawImage(this.image, 0, 0);
+
+    _.each(this.objs, function(obj){
+        if(toggle === 0 && character.maxy() <= obj.cutoff ){
+            toggle = 1;
+            character.render(ctx);
+            ctx.drawImage(obj.image, obj.x, obj.y);
+        } else{
+            ctx.drawImage(obj.image, obj.x, obj.y);
+        }
+    });
+
+    if(toggle === 0){
+      character.render(ctx);
+    }
+  } else {
+    _.each(this.objs, function(obj){ ctx.drawImage(obj.image, obj.x, obj.y); });
   }
+
   if(mode){
       ctx.fillStyle = 'rgba(255, 0, 0, 0.25);';
     _.each(this.blocks, function(block){
@@ -8560,4 +8569,4 @@ module.exports = exports;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[9])
+},{}]},{},[9]);

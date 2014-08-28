@@ -87,7 +87,7 @@ Game.prototype.clearCanvas = function(){
 Game.prototype.draw = function(){
     this.clearCanvas();
     this.character.tick(this.map.blocks);
-    this.map.render(this.character, this.ctx, this.mode);
+    this.map.render(this.ctx, this.mode, this.character);
     if(this.map.width > window.outerWidth || this.map.height > window.outerHeight){
       this.reposition();
     }
