@@ -34,6 +34,52 @@
 			background-color: white;
 		}
 	}
+	#palette-container{
+		display: inline-block;
+		.tool-palette{
+			box-sizing: border-box;
+			display: none;
+			width: 5em;
+			text-align: left;
+			padding: .25em;
+			border: 1px solid black;
+			border-radius: 3px;
+
+			&.active, &:first-of-type{
+				display: inline-block;
+			}
+			.tool-button{
+				display: inline-block;
+				box-sizing: border-box;
+				width: 2em;
+				height: 2em;
+				padding: .5em 0 .5em 0;
+				text-align: center;
+				border: 1px solid black;
+				border-radius: 3px;
+				line-height: 1;
+				font-size: 1em;
+				cursor: pointer;
+				&.active{
+					cursor: default;
+				}
+				&:nth-child(odd){
+					margin-right: .5em;
+				}
+				&:hover, &.active{
+					background-color: #cccccc;
+					text-shadow: 0px -2px 0px white,
+								 2px -2px 0px white,
+								 2px 0px 0px white,
+								 2px 2px 0px white,
+								 0px 2px 0px white,
+								 -2px 2px 0px white,
+								 -2px 0px 0px white;
+				}
+
+			}
+		}
+	}
 	#editor-viewport{
 		display: inline-block;
 		width: auto;

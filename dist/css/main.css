@@ -2106,6 +2106,44 @@ body div#game canvas {
   padding: .12em 1em;
   background-color: white;
 }
+#editor-container #palette-container {
+  display: inline-block;
+}
+#editor-container #palette-container .tool-palette {
+  box-sizing: border-box;
+  display: none;
+  width: 5em;
+  text-align: left;
+  padding: .25em;
+  border: 1px solid black;
+  border-radius: 3px;
+}
+#editor-container #palette-container .tool-palette.active, #editor-container #palette-container .tool-palette:first-of-type {
+  display: inline-block;
+}
+#editor-container #palette-container .tool-palette .tool-button {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 2em;
+  height: 2em;
+  padding: .5em 0 .5em 0;
+  text-align: center;
+  border: 1px solid black;
+  border-radius: 3px;
+  line-height: 1;
+  font-size: 1em;
+  cursor: pointer;
+}
+#editor-container #palette-container .tool-palette .tool-button.active {
+  cursor: default;
+}
+#editor-container #palette-container .tool-palette .tool-button:nth-child(odd) {
+  margin-right: .5em;
+}
+#editor-container #palette-container .tool-palette .tool-button:hover, #editor-container #palette-container .tool-palette .tool-button.active {
+  background-color: #cccccc;
+  text-shadow: 0px -2px 0px white, 2px -2px 0px white, 2px 0px 0px white, 2px 2px 0px white, 0px 2px 0px white, -2px 2px 0px white, -2px 0px 0px white;
+}
 #editor-container #editor-viewport {
   display: inline-block;
   width: auto;
