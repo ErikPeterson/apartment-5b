@@ -1655,7 +1655,7 @@ var map2 = require('./level2.js');
 
 var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
 
-var g = new Game('game', kramer, 'debug');
+var g = new Game('game', kramer);
 
 g.registerMap(map1);
 g.registerMap(map2);
