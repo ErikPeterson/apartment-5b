@@ -12,9 +12,18 @@ Map.prototype.initialize = function(options, queuer){
   this.width = options.w;
   this.height = options.h;
   this.queuer = queuer;
-  this.image = createImage(options.image, this.queuer);
+  this.image = this.setImage(options.image);
   this.objs = (options.objs) ? this.loadObjects(options.objs) : [];
   this.blocks = (options.blocks) ? Block.makeGroup(options.blocks) : [];
+};
+
+Map.prototype.setImage = function(urlorimage){
+  var mode = typeof urlorimage;
+  if(mode === 'string'){
+    return createImage(urlorimage);
+  }
+  this.queuer(urlorimage);
+  return urlorimage;
 };
 
 Map.prototype.addBlock = function(block){
@@ -52,10 +61,10 @@ Map.prototype.loadObjects = function(objs){
 
 Map.prototype.render = function(ctx, mode, character){
   var toggle = 0;
+  
+  ctx.drawImage(this.image, 0, 0);
 
   if(character){
-
-    ctx.drawImage(this.image, 0, 0);
 
     _.each(this.objs, function(obj){
         if(toggle === 0 && character.maxy() <= obj.cutoff ){

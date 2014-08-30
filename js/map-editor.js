@@ -1,4 +1,4 @@
-var map = require('./map.js');
+var Map = require('./map.js');
 var keypress = require('./keypress.js');
 var createImage = require('./support.js').createImage;
 var addClass = require('./support.js').addClass;
@@ -48,7 +48,7 @@ MapEditor.prototype.bindEvents = function(){
     }, true);
 
     that.nameField.addEventListener('change', function(e){
-        that.changMapName(that.nameField.value);
+        that.changeMapName(that.nameField.value);
     });
 
     that.toolsContainer.querySelector('#tool-bar').addEventListener('click', function (e){
