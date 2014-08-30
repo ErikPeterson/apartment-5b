@@ -13,8 +13,8 @@ Map.prototype.initialize = function(options, queuer){
   this.height = options.h;
   this.queuer = queuer;
   this.image = createImage(options.image, this.queuer);
-  this.objs = this.loadObjects(options.objs);
-  this.blocks = Block.makeGroup(options.blocks);
+  this.objs = (options.objs) ? this.loadObjects(options.objs) : [];
+  this.blocks = (options.blocks) ? Block.makeGroup(options.blocks) : [];
 };
 
 Map.prototype.addBlock = function(block){

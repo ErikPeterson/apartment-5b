@@ -1,7 +1,14 @@
 module.exports = function(grunt){
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-
+    concurrent: {
+      server: {
+        tasks:['watch','connect'],
+        options: {
+          logConcurrentOutput: true
+        }
+      }
+    },
     browserify:{
       iso: {
         src: ['<%= pkg.main %>.js'],
@@ -73,8 +80,7 @@ module.exports = function(grunt){
         options: {
           port: 3000,
           base: 'dist',
-          keepalive: true,
-          debug: true
+          keepalive: true
         }
       }
     },
@@ -102,11 +108,12 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-autoprefixer');
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-concurrent');
 
   grunt.registerTask('default', ['jshint','browserify', 'copy:images','copy:html', 'sass']);
-  grunt.registerTask('serve', ['connect', 'watch']);
+  grunt.registerTask('serve', ['concurrent:server']);
 
 };

@@ -1604,8 +1604,8 @@ Map.prototype.initialize = function(options, queuer){
   this.height = options.h;
   this.queuer = queuer;
   this.image = createImage(options.image, this.queuer);
-  this.objs = this.loadObjects(options.objs);
-  this.blocks = Block.makeGroup(options.blocks);
+  this.objs = (options.objs) ? this.loadObjects(options.objs) : [];
+  this.blocks = (options.blocks) ? Block.makeGroup(options.blocks) : [];
 };
 
 Map.prototype.addBlock = function(block){
@@ -1699,8 +1699,6 @@ g.registerMap(map2);
 g.loadMap('Bedroom', {x: 260, y: 250});
 
 g.launch();
-
-console.log(g.maps.Bedroom.toJSON());
 },{"./game.js":4,"./level1.js":6,"./level2.js":7}],10:[function(require,module,exports){
 var exports;
 var createImage = require('./support.js').createImage;
@@ -1747,12 +1745,18 @@ exports.makeVector = function (point){
     return new Vector(point.x, point.y);
 };
 
-exports.createImage = function (url, queuer){
-  var img = new Image();
+exports.createImage = function (img, queuer){
+  var url = (typeof img === "object") ? img : undefined;
+
+  if(url){
+    img = new Image();
+    img.src = url;
+  }
+
   if(queuer){
     queuer(img);
   }
-  img.src = url;
+
   return img;
 };
 

@@ -24,7 +24,13 @@ var MapEditor = function(){
     this.hide(this.canvas);
     this.hide(this.viewport);
     this.ctx = this.canvas.getContext('2d');
+    this.imgs =[];
     this.bindEvents();
+    this.imgs =[];
+};
+
+MapEditor.prototype.queueImage = function(img){
+  this.imgs.push(img);
 };
 
 MapEditor.prototype.setDimensions = function (w, h){
@@ -42,7 +48,7 @@ MapEditor.prototype.bindEvents = function(){
     }, true);
 
     that.nameField.addEventListener('change', function(e){
-        that.mapName = that.nameField.value;
+        that.changMapName(that.nameField.value);
     });
 
     that.toolsContainer.querySelector('#tool-bar').addEventListener('click', function (e){
@@ -52,6 +58,15 @@ MapEditor.prototype.bindEvents = function(){
         }
         
     });
+};
+
+MapEditor.prototype.changeMapName = function(newname){
+    this.name = newname;
+
+    if(this.map){
+        this.map.name = newname;
+    }
+
 };
 
 MapEditor.prototype.activateToolset = function (toolset, button){
@@ -91,6 +106,13 @@ MapEditor.prototype.setBg = function(){
         this.show(this.viewport);
         this.show(this.canvas);
         this.setDimensions(this.img.width, this.img.height);
+        this.map = new Map ({
+            h: this.width, 
+            w: this.height,
+            image: this.img
+            },
+            this.queueImage.bind(this)
+            );
         this.start();
     }.bind(this), true);
 
@@ -132,7 +154,7 @@ MapEditor.prototype.clearCanvas = function(){
 
 MapEditor.prototype.draw = function(){
     this.clearCanvas();
-    this.ctx.drawImage(this.img, 0, 0);
+    this.map.render(this.ctx, 'editor');
 };
 
 module.exports = exports = MapEditor;

@@ -6,12 +6,18 @@ exports.makeVector = function (point){
     return new Vector(point.x, point.y);
 };
 
-exports.createImage = function (url, queuer){
-  var img = new Image();
+exports.createImage = function (img, queuer){
+  var url = (typeof img === "object") ? img : undefined;
+
+  if(url){
+    img = new Image();
+    img.src = url;
+  }
+
   if(queuer){
     queuer(img);
   }
-  img.src = url;
+
   return img;
 };
 
