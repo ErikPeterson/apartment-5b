@@ -3,19 +3,19 @@ var Character = require('./character');
 var _ = require('lodash');
 var Map = require('./map');
 
+
 Game = function(element, character, mode){
   this.initialize(element, character, mode);
 };
 
-Game.prototype.initialize = function(element, character, mode){
+Game.prototype.initialize = function(canvas, character, mode){
   this.mode = mode;
   this.imgs = [];
-  this.container = document.getElementById(element);
-  this.canvas = this.container.appendChild(document.createElement('canvas'));
-  this.canvas.setAttribute('id','canvas');
+  this.canvas = canvas;
   this.targetFps = 10;
   this.loading = 0;
   this.ctx = this.canvas.getContext('2d');
+  this.ctx.imageSmoothingEnabled=false;
   this.character = new Character(character, this.queueImage.bind(this));
   this.character.game = this;
   this.bindKeys();

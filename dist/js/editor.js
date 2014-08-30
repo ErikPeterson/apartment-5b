@@ -54,9 +54,13 @@ Block.makeGroup = function(arr){
 
 module.exports = exports = Block;
 },{"./SAT.min.js":1,"./support.js":7,"lodash":8}],3:[function(require,module,exports){
-var MapEditor = require('./map-editor.js');
-//
-var e = new MapEditor();
+(function(require){
+    'use strict';
+    
+    var MapEditor = require('./map-editor.js');
+    //
+    var e = new MapEditor();
+}(require));
 },{"./map-editor.js":5}],4:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -1115,7 +1119,7 @@ var createImage = require('./support.js').createImage;
 var addClass = require('./support.js').addClass;
 var removeClass = require('./support.js').removeClass;
 var _ = require('lodash');
-var $ = _.bind(document.querySelector, document);
+var $ = require('./support.js').querySelector(document);
 
 
 var MapEditor = function(){
@@ -1135,6 +1139,7 @@ var MapEditor = function(){
     this.hide(this.canvas);
     this.hide(this.viewport);
     this.ctx = this.canvas.getContext('2d');
+    this.ctx.imageSmoothingEnabled=false;
     this.imgs =[];
     this.bindEvents();
     this.imgs =[];
@@ -1200,7 +1205,7 @@ MapEditor.prototype.activateToolset = function (toolset, button){
 };
 
 MapEditor.prototype.registerTool = function (name, fn){
-    this.tools[name] = _.bind(fn, this);
+    this.tools[name] = fn(this);
 };
 
 MapEditor.prototype.setBg = function(){
@@ -1403,6 +1408,10 @@ exports.addClass = function (classname, el){
                 el.setAttribute('class', classlist + ' ' + classname);
             }
         }
+};
+
+exports.querySelector = function(document){
+  return _.bind(document.querySelector, document);
 };
 
 exports.removeClass = function (classname, el){

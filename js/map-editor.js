@@ -4,7 +4,7 @@ var createImage = require('./support.js').createImage;
 var addClass = require('./support.js').addClass;
 var removeClass = require('./support.js').removeClass;
 var _ = require('lodash');
-var $ = _.bind(document.querySelector, document);
+var $ = require('./support.js').querySelector(document);
 
 
 var MapEditor = function(){
@@ -24,6 +24,7 @@ var MapEditor = function(){
     this.hide(this.canvas);
     this.hide(this.viewport);
     this.ctx = this.canvas.getContext('2d');
+    this.ctx.imageSmoothingEnabled=false;
     this.imgs =[];
     this.bindEvents();
     this.imgs =[];
@@ -89,7 +90,7 @@ MapEditor.prototype.activateToolset = function (toolset, button){
 };
 
 MapEditor.prototype.registerTool = function (name, fn){
-    this.tools[name] = _.bind(fn, this);
+    this.tools[name] = fn(this);
 };
 
 MapEditor.prototype.setBg = function(){

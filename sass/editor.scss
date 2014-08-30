@@ -96,6 +96,8 @@
 		canvas{
 			display: block;
 			position: relative;
+			image-rendering: -webkit-optimize-contrast;
+			image-rendering: -moz-crisp-edges;
 		}
 	}
 	#editor-tools{

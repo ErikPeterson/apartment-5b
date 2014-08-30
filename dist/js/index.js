@@ -234,19 +234,19 @@ var Character = require('./character');
 var _ = require('lodash');
 var Map = require('./map');
 
+
 Game = function(element, character, mode){
   this.initialize(element, character, mode);
 };
 
-Game.prototype.initialize = function(element, character, mode){
+Game.prototype.initialize = function(canvas, character, mode){
   this.mode = mode;
   this.imgs = [];
-  this.container = document.getElementById(element);
-  this.canvas = this.container.appendChild(document.createElement('canvas'));
-  this.canvas.setAttribute('id','canvas');
+  this.canvas = canvas;
   this.targetFps = 10;
   this.loading = 0;
   this.ctx = this.canvas.getContext('2d');
+  this.ctx.imageSmoothingEnabled=false;
   this.character = new Character(character, this.queueImage.bind(this));
   this.character.game = this;
   this.bindKeys();
@@ -1694,21 +1694,33 @@ Map.prototype.render = function(ctx, mode, character){
 module.exports = exports = Map;
 
 },{"./SAT.min":1,"./block.js":2,"./support.js":11,"lodash":12}],9:[function(require,module,exports){
-var Game = require('./game.js');
-var map1 = require('./level1.js');
-var map2 = require('./level2.js');
+(function(require){
 
-var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
+    'use strict';
 
-var g = new Game('game', kramer);
+    var Game = require('./game.js');
+    var map1 = require('./level1.js');
+    var map2 = require('./level2.js');
+    var $ = require('./support.js').querySelector(document);
 
-g.registerMap(map1);
-g.registerMap(map2);
+    var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
+    var container = $('#game');
+    var canvas = container.appendChild(document.createElement('canvas'));
+    
+    container.appendChild(canvas);
+    canvas.setAttribute('id', 'canvas');
 
-g.loadMap('Bedroom', {x: 260, y: 250});
+    var g = new Game(canvas, kramer);
 
-g.launch();
-},{"./game.js":4,"./level1.js":6,"./level2.js":7}],10:[function(require,module,exports){
+    g.registerMap(map1);
+    g.registerMap(map2);
+
+    g.loadMap('Bedroom', {x: 260, y: 250});
+
+    g.launch();
+
+}(require));
+},{"./game.js":4,"./level1.js":6,"./level2.js":7,"./support.js":11}],10:[function(require,module,exports){
 var exports;
 var createImage = require('./support.js').createImage;
 
@@ -1774,6 +1786,10 @@ exports.addClass = function (classname, el){
                 el.setAttribute('class', classlist + ' ' + classname);
             }
         }
+};
+
+exports.querySelector = function(document){
+  return _.bind(document.querySelector, document);
 };
 
 exports.removeClass = function (classname, el){

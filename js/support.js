@@ -28,6 +28,10 @@ exports.addClass = function (classname, el){
         }
 };
 
+exports.querySelector = function(document){
+  return _.bind(document.querySelector, document);
+};
+
 exports.removeClass = function (classname, el){
     var regex = new RegExp("\\s?(" + classname + ")\\s?"),
         classlist = el.getAttribute('class') || '',
