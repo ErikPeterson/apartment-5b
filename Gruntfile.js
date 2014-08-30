@@ -68,6 +68,16 @@ module.exports = function(grunt){
       },
       main: ['./js/*.js', '!./js/keypress.js', '!./js/SAT.min.js']
     },
+    connect: {
+      server: {
+        options: {
+          port: 3000,
+          base: 'dist',
+          keepalive: true,
+          debug: true
+        }
+      }
+    },
     watch: {
       scripts: {
         files:'./js/*.js',
@@ -94,7 +104,9 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-autoprefixer');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   grunt.registerTask('default', ['jshint','browserify', 'copy:images','copy:html', 'sass']);
+  grunt.registerTask('serve', ['connect', 'watch']);
 
 };
