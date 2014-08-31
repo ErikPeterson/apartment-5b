@@ -156,11 +156,11 @@ module.exports = function(grunt){
       },
       html: {
         files: './html/*',
-        tasks: ['copy:dev:html']
+        tasks: ['copy:dev']
       },
       images: {
         files: ['assets/*','!assets/*.psd'],
-        tasks: ['copy:dev:images']
+        tasks: ['copy:dev']
       }
       }
   });
