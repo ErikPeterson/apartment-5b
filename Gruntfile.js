@@ -39,61 +39,56 @@ module.exports = function(grunt){
         }
       },
     },
+    htmlmin: {
+      prod: {
+        options: {
+          removeComments: true,
+          collapseWhitespace: true
+        },
+        files:{
+          'prod/index.html':'prod/index.html',
+          'prod/editor.html':'prod/editor.html'
+        }
+      }
+    },
     copy: {
       prod: {
-        images:{
           files:[{
               expand: true,
               cwd: './',
               src:['assets/*','!assets/*.psd'],
               dest: 'prod/'
-          }]
-        },
-        html:{
-          files:[{
+          },{
             expand: true,
             cwd: './html/',
-            src:['*'],
+            src:['*.html'],
             dest:'./prod/'
-          }
-          ]
-        },
-        fonts: {
-          files: [{
+          },{
             expand: true,
             cwd: './',
             src: ['assets/fonts/*'],
             dest: 'prod/'
           }]
-        }
       },
       dev:{
-        images:{
           files:[{
               expand: true,
               cwd: './',
               src:['assets/*','!assets/*.psd'],
               dest: 'dev/'
-          }]
-        },
-        html:{
-          files:[{
+          },{
             expand: true,
             cwd: './html/',
             src:['*'],
             dest:'./dev/'
-          }
-          ]
-        },
-        fonts: {
-          files: [{
+          },{
             expand: true,
             cwd: './',
             src: ['assets/fonts/*'],
             dest: 'dev/'
           }]
         }
-      }
+      
     },
     sass:{
       dev: {
@@ -179,9 +174,10 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-htmlmin');
 
-  grunt.registerTask('builddev', ['jshint','browserify', 'copy:dev', 'sass:dev', 'autoprefixer:dev']);
-  grunt.registerTask('buildprod', ['jshint','browserify:prod', 'copy:prod', 'sass:prod', 'autoprefixer:prod', 'uglify:prod']);
+  grunt.registerTask('builddev', ['jshint','browserify:dev', 'copy:dev', 'sass:dev', 'autoprefixer:dev']);
+  grunt.registerTask('buildprod', ['jshint','browserify:prod', 'copy:prod', 'sass:prod', 'autoprefixer:prod', 'uglify:prod', 'htmlmin:prod']);
   grunt.registerTask('devserve', ['concurrent:server']);
 
 };
