@@ -1,6 +1,6 @@
-var makeVector = require('./support.js').makeVector;
+var makeVector = require('../support/functions.js').makeVector;
 var _ = require('lodash');
-var SAT = require('./SAT.min.js');
+var SAT = require('../support/SAT.min.js');
 var Polygon = SAT.Polygon;
 
 var defaults = {

@@ -15,7 +15,7 @@ module.exports = function(grunt){
         dest: './dist/js/index.js'
       },
       editor: {
-        src: ['./js/editor.js'],
+        src: ['./js/views/editor.js'],
         dest: './dist/js/editor.js'
       }
     },
@@ -73,7 +73,7 @@ module.exports = function(grunt){
       options:{
         debug: true
       },
-      main: ['./js/*.js', '!./js/keypress.js', '!./js/SAT.min.js']
+      main: ['./js/**/*.js', '!./js/support/keypress.js', '!./js/support/SAT.min.js']
     },
     connect: {
       server: {
@@ -86,7 +86,7 @@ module.exports = function(grunt){
     },
     watch: {
       scripts: {
-        files:'./js/*.js',
+        files:'./js/**/*.js',
         tasks: ['jshint','browserify']
       },
       sass: {

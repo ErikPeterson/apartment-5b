@@ -2,10 +2,10 @@
 
     'use strict';
 
-    var Game = require('./game.js');
-    var map1 = require('./level1.js');
-    var map2 = require('./level2.js');
-    var $ = require('./support.js').querySelector(document);
+    var Game = require('../models/game.js');
+    var map1 = require('../data/levels/level1.js');
+    var map2 = require('../data/levels/level2.js');
+    var $ = require('../support/functions.js').querySelector(document);
 
     var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
     var container = $('#game');

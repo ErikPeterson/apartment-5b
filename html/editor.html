@@ -6,38 +6,42 @@
 </head>
 <body>
   <div id="editor-container">
+  
   <div class="container">
-    <div id="editor-fields">
+    <div id="editor-settings">
+    <fieldset>
     <label>Background Image: <input type="text" id="map-image" placeholder="assets/..."></label>
-      <button type="button" id="set-image">Set Background</button><br /><label>Map Name: <input type="text" id="map-name" placeholder="Bedroom"></label>
+      <button type="button" id="set-image">Set Background</button>
+    </fieldset>
+    <fieldset>
+      <label>Map Name: <input type="text" id="map-name" placeholder="Bedroom"></label>
+    </fieldset>
   	</div>
   </div>
+  
   <div class="container">
-    <div id="palette-container">
-      <ul id="basic-palette" class="tool-palette">
-        <li class="tool-button" data-toolname="pan"><span class="fa fa-arrows" data-tooltip="Pan"></span></li>
-      </ul>
-      <ul id="blocks-palette" class="tool-palette">
-      </ul>
-      <ul id="exits-palette" class="tool-palette">
-      </ul>
-      <ul id="objects-palette" class="tool-palette">
-      </ul>
+    <div id="palette-container" class="hidden">
     </div>
-    <div id="editor-viewport">
+    <div id="editor-viewport" class="hidden">
     </div>
   </div>
+  
   <div class="container">
-    <div id="editor-tools">
+    <div id="editor-tools" class="hidden">
       <span class="label"><h2>Toolsets:</h2></span>
       <ul id="tool-bar">
-        <li class="tool" data-toolset="blocks">Blocks</li>
-        <li class="tool" data-toolset="exits">Exits</li>
-        <li class="tool" data-toolset="objects">Objects</li>
       </ul>
     </div>
   </div>
+
+  <div id="modal-window" class="hidden">
+    <div id="modal-container"></div>
   </div>
+
+  </div>
+
+  
   <script src="js/editor.js"></script>
+
 </body>
 </html>

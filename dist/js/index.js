@@ -1,22 +1,111 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/* SAT.js - Version 0.4.1 - Copyright 2014 - Jim Riecken <jimr@jimr.ca> - released under the MIT License. https://github.com/jriecken/sat-js */
-function w(){function a(b,k){this.x=b||0;this.y=k||0}function e(b,k){this.pos=b||new a;this.points=k||[];this.angle=0;this.offset=new a;this.recalc()}function u(b,k,c){this.pos=b||new a;this.w=k||0;this.h=c||0}function v(){this.b=this.a=null;this.overlapN=new a;this.overlapV=new a;this.clear()}function z(b,k,c){for(var a=Number.MAX_VALUE,f=-Number.MAX_VALUE,h=b.length,l=0;l<h;l++){var g=b[l].d(k);g<a&&(a=g);g>f&&(f=g)}c[0]=a;c[1]=f}function A(b,k,c,a,f,h){var l=q.pop(),g=q.pop();b=d.pop().c(k).sub(b);
-k=b.d(f);z(c,f,l);z(a,f,g);g[0]+=k;g[1]+=k;if(l[0]>g[1]||g[0]>l[1])return d.push(b),q.push(l),q.push(g),!0;h&&(c=0,l[0]<g[0]?(h.aInB=!1,l[1]<g[1]?(c=l[1]-g[0],h.bInA=!1):(c=l[1]-g[0],a=g[1]-l[0],c=c<a?c:-a)):(h.bInA=!1,l[1]>g[1]?(c=l[0]-g[1],h.aInB=!1):(c=l[1]-g[0],a=g[1]-l[0],c=c<a?c:-a)),a=Math.abs(c),a<h.overlap&&(h.overlap=a,h.overlapN.c(f),0>c&&h.overlapN.reverse()));d.push(b);q.push(l);q.push(g);return!1}function x(b,k){var c=b.e(),a=k.d(b);return 0>a?-1:a>c?1:0}function B(b,k,c){for(var a=
-d.pop().c(k.pos).sub(b.pos),f=k.r,h=f*f,l=b.calcPoints,g=l.length,s=d.pop(),p=d.pop(),m=0;m<g;m++){var e=m===g-1?0:m+1,q=0===m?g-1:m-1,t=0,r=null;s.c(b.edges[m]);p.c(a).sub(l[m]);c&&p.e()>h&&(c.aInB=!1);var n=x(s,p);if(-1===n){s.c(b.edges[q]);e=d.pop().c(a).sub(l[q]);n=x(s,e);if(1===n){n=p.f();if(n>f)return d.push(a),d.push(s),d.push(p),d.push(e),!1;c&&(c.bInA=!1,r=p.normalize(),t=f-n)}d.push(e)}else if(1===n){if(s.c(b.edges[e]),p.c(a).sub(l[e]),n=x(s,p),-1===n){n=p.f();if(n>f)return d.push(a),d.push(s),
-d.push(p),!1;c&&(c.bInA=!1,r=p.normalize(),t=f-n)}}else{e=s.g().normalize();n=p.d(e);q=Math.abs(n);if(0<n&&q>f)return d.push(a),d.push(e),d.push(p),!1;c&&(r=e,t=f-n,0<=n||t<2*f)&&(c.bInA=!1)}r&&c&&Math.abs(t)<Math.abs(c.overlap)&&(c.overlap=t,c.overlapN.c(r))}c&&(c.a=b,c.b=k,c.overlapV.c(c.overlapN).scale(c.overlap));d.push(a);d.push(s);d.push(p);return!0}function C(b,a,c){for(var d=b.calcPoints,f=d.length,h=a.calcPoints,l=h.length,g=0;g<f;g++)if(A(b.pos,a.pos,d,h,b.normals[g],c))return!1;for(g=0;g<
-l;g++)if(A(b.pos,a.pos,d,h,a.normals[g],c))return!1;c&&(c.a=b,c.b=a,c.overlapV.c(c.overlapN).scale(c.overlap));return!0}var m={};m.Vector=a;m.V=a;a.prototype.copy=a.prototype.c=function(b){this.x=b.x;this.y=b.y;return this};a.prototype.clone=a.prototype.i=function(){return new a(this.x,this.y)};a.prototype.perp=a.prototype.g=function(){var b=this.x;this.x=this.y;this.y=-b;return this};a.prototype.rotate=a.prototype.rotate=function(b){var a=this.x,c=this.y;this.x=a*Math.cos(b)-c*Math.sin(b);this.y=
-a*Math.sin(b)+c*Math.cos(b);return this};a.prototype.reverse=a.prototype.reverse=function(){this.x=-this.x;this.y=-this.y;return this};a.prototype.normalize=a.prototype.normalize=function(){var b=this.f();0<b&&(this.x/=b,this.y/=b);return this};a.prototype.add=a.prototype.add=function(b){this.x+=b.x;this.y+=b.y;return this};a.prototype.sub=a.prototype.sub=function(b){this.x-=b.x;this.y-=b.y;return this};a.prototype.scale=a.prototype.scale=function(b,a){this.x*=b;this.y*=a||b;return this};a.prototype.project=
-a.prototype.j=function(b){var a=this.d(b)/b.e();this.x=a*b.x;this.y=a*b.y;return this};a.prototype.projectN=a.prototype.k=function(b){var a=this.d(b);this.x=a*b.x;this.y=a*b.y;return this};a.prototype.reflect=function(b){var a=this.x,c=this.y;this.j(b).scale(2);this.x-=a;this.y-=c;return this};a.prototype.reflectN=function(b){var a=this.x,c=this.y;this.k(b).scale(2);this.x-=a;this.y-=c;return this};a.prototype.dot=a.prototype.d=function(b){return this.x*b.x+this.y*b.y};a.prototype.len2=a.prototype.e=
-function(){return this.d(this)};a.prototype.len=a.prototype.f=function(){return Math.sqrt(this.e())};m.Circle=function(b,k){this.pos=b||new a;this.r=k||0};m.Polygon=e;e.prototype.setPoints=function(b){this.points=b;this.recalc();return this};e.prototype.setAngle=function(b){this.angle=b;this.recalc();return this};e.prototype.setOffset=function(b){this.offset=b;this.recalc();return this};e.prototype.rotate=e.prototype.rotate=function(b){for(var a=this.points,c=a.length,d=0;d<c;d++)a[d].rotate(b);this.recalc();
-return this};e.prototype.translate=e.prototype.translate=function(b,a){for(var c=this.points,d=c.length,f=0;f<d;f++)c[f].x+=b,c[f].y+=a;this.recalc();return this};e.prototype.recalc=e.prototype.recalc=function(){var b,k=this.calcPoints=[],c=this.edges=[],d=this.normals=[],f=this.points,h=this.offset,l=this.angle,g=f.length;for(b=0;b<g;b++){var e=f[b].i();k.push(e);e.x+=h.x;e.y+=h.y;0!==l&&e.rotate(l)}for(b=0;b<g;b++)f=(new a).c(b<g-1?k[b+1]:k[0]).sub(k[b]),h=(new a).c(f).g().normalize(),c.push(f),
-d.push(h);return this};m.Box=u;u.prototype.toPolygon=u.prototype.l=function(){var b=this.pos,k=this.w,c=this.h;return new e(new a(b.x,b.y),[new a,new a(k,0),new a(k,c),new a(0,c)])};m.Response=v;v.prototype.clear=v.prototype.clear=function(){this.bInA=this.aInB=!0;this.overlap=Number.MAX_VALUE;return this};for(var d=[],r=0;10>r;r++)d.push(new a);for(var q=[],r=0;5>r;r++)q.push([]);var y=new v,D=(new u(new a,1,1)).l();m.pointInCircle=function(b,a){var c=d.pop().c(b).sub(a.pos),e=a.r*a.r,f=c.e();d.push(c);
-return f<=e};m.pointInPolygon=function(b,a){D.pos.c(b);y.clear();var c=C(D,a,y);c&&(c=y.aInB);return c};m.testCircleCircle=function(b,a,c){var e=d.pop().c(a.pos).sub(b.pos),f=b.r+a.r,h=e.e();if(h>f*f)return d.push(e),!1;c&&(h=Math.sqrt(h),c.a=b,c.b=a,c.overlap=f-h,c.overlapN.c(e.normalize()),c.overlapV.c(e).scale(c.overlap),c.aInB=b.r<=a.r&&h<=a.r-b.r,c.bInA=a.r<=b.r&&h<=b.r-a.r);d.push(e);return!0};m.testPolygonCircle=B;m.testCirclePolygon=function(a,d,c){if((a=B(d,a,c))&&c){d=c.a;var e=c.aInB;c.overlapN.reverse();
-c.overlapV.reverse();c.a=c.b;c.b=d;c.aInB=c.bInA;c.bInA=e}return a};m.testPolygonPolygon=C;return m}"function"===typeof define&&define.amd?define(w):"object"===typeof exports?module.exports=w():this.SAT=w();
+var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
+    objs = [bed],
+    wall1 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 0, y: 0}, {x:0,y: 414}, {x:315, y: 257}]},
+    wall2 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 315, y: 257}, {x:630,y: 414}, {x:630, y: 0}]},
+    wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 12, y: 510}, {x: 104, y: 464}]},
+    wall4 = {offset: {x: 0, y: 0}, points: [{x: 210, y: 517}, {x: 116, y: 564}, {x: 320, y: 570}]},
+    wall5 = {offset: {x: 0, y: 0}, points: [{x: 310, y: 570}, {x: 630, y: 570}, {x: 630, y: 414}]},
+    exit = {opts: { blockType: 'exit', exit: {nextroom: 'TV Set', startpos: {x: 448, y: 198}}}, offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
+    bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]},
+    blocks = [wall1, wall2, wall3, wall4, wall5, bedblock, exit];
+
+
+var map = {name:'Bedroom', image: 'assets/room1.gif', w: 630, h: 570, objs: objs, blocks: blocks};
+
+
+module.exports = exports = map;
 
 },{}],2:[function(require,module,exports){
-var makeVector = require('./support.js').makeVector;
+var block1 = {offset: {x:0, y: 0}, points: [
+    {x: 315, y: 0},
+    {x: 315, y: 248},
+    {x: 0, y: 406},
+    {x: 0, y:156}
+]}, block2 = {offset: {x:0, y: 0}, points: [
+    {x: 239, y: 287},
+    {x: 238, y: 270},
+    {x: 185, y: 321},
+    {x: 195, y: 325},
+    {x: 218, y: 315}
+]}, block3 = {offset: {x:0, y: 0}, points: [
+    {x: 325, y: 328},
+    {x: 303, y: 348},
+    {x: 303, y: 357},
+    {x: 400, y: 309},
+    {x: 400, y: 291}
+]}, block4 = {offset: {x:0, y: 0}, points: [
+    {x: 315, y: 0},
+    {x: 315, y: 249},
+    {x: 435, y: 309},
+    {x: 435, y: 60}
+]}, block5 = {offset: {x:0, y: 0}, points: [
+    {x: 315, y: 0},
+    {x: 401, y: 292},
+    {x: 401, y: 309},
+    {x: 435, y: 325}
+]}, block6 = {offset: {x:0, y: 0}, points: [
+    {x: 504, y: 94},
+    {x: 434, y: 60},
+    {x: 434, y: 326},
+    {x: 504, y: 290}
+]}, block7 = {offset: {x:0, y: 0}, points: [
+    {x: 575, y: 315},
+    {x: 505, y: 531},
+    {x: 630, y: 414},
+    {x: 630, y: 315}
+]}, block8 = {offset: {x:0, y: 0}, points: [
+    {x: 630, y: 323},
+    {x: 223, y: 524},
+    {x: 314, y: 570},
+    {x: 630, y: 413}
+]}, block9 = {offset: {x:0, y: 0}, points: [
+    {x: 502, y: 350},
+    {x: 630, y: 414},
+    {x: 572, y: 314}
+]}, block10 = {offset: {x:0, y: 0}, points: [
+    {x: 0, y: 412},
+    {x: 0, y: 570},
+    {x: 316, y: 570}
+]}, block11 = {offset: {x:0, y: 0}, points: [
+    {x: 331, y: 295},
+    {x: 331, y: 319},
+    {x: 355, y: 319},
+    {x: 355, y: 295}
+]}, block12 = {offset: {x:0, y: 0}, points: [
+    {x: 81, y: 396},
+    {x: 60, y: 404},
+    {x: 60, y: 414},
+    {x: 81, y: 424},
+    {x: 103, y: 413},
+    {x: 103, y: 402}
+]}, block13 = {offset: {x:0, y: 0}, points: [
+    {x: 0, y: 414},
+    {x: 194, y: 316},
+    {x: 194, y: 300},
+    {x: 0, y: 398}
+]}, exit = {offset: {x:0, y: 0}, opts:{ blockType: 'exit', exit: {nextroom: 'Bedroom', startpos: {x:88, y: 384}}}, points: [
+    {x: 504, y: 292},
+    {x: 573, y: 316},
+    {x: 569, y: 273}
+]},
+blocks = [block1, block2, block3, block4, block5, block6, block8, block9, block10, block11, block12, block13, exit];
+
+var objs = [
+    {image: 'assets/room-2-wall.gif', x: 442, y: 66, cutoff: 350},
+    {image: 'assets/mic.gif', x: 331, y: 214, cutoff: 301},
+    {image: 'assets/camera.gif', x: 58, y: 312, cutoff: 414},
+    {image: 'assets/bleachers.gif', x: 224, y: 308, cutoff: 570}
+];
+
+var map = {name: 'TV Set', image: 'assets/room2.gif', w: 630, h: 570, objs: objs, blocks: blocks};
+
+module.exports = exports = map;
+
+},{}],3:[function(require,module,exports){
+var makeVector = require('../support/functions.js').makeVector;
 var _ = require('lodash');
-var SAT = require('./SAT.min.js');
+var SAT = require('../support/SAT.min.js');
 var Polygon = SAT.Polygon;
 
 var defaults = {
@@ -53,11 +142,11 @@ Block.makeGroup = function(arr){
 };
 
 module.exports = exports = Block;
-},{"./SAT.min.js":1,"./support.js":11,"lodash":12}],3:[function(require,module,exports){
+},{"../support/SAT.min.js":8,"../support/functions.js":9,"lodash":12}],4:[function(require,module,exports){
 var Sprite = require('./sprite');
-var Box = require('./SAT.min.js').Box;
-var testPolygonPolygon = require('./SAT.min.js').testPolygonPolygon;
-var makeVector = require('./support').makeVector;
+var Box = require('../support/SAT.min.js').Box;
+var testPolygonPolygon = require('../support/SAT.min.js').testPolygonPolygon;
+var makeVector = require('../support/functions.js').makeVector;
 var _ = require('lodash');
 var exports;
 
@@ -228,8 +317,8 @@ function newTest(box){
 
 module.exports = exports = Character;
 
-},{"./SAT.min.js":1,"./sprite":10,"./support":11,"lodash":12}],4:[function(require,module,exports){
-var keypress = require('./keypress');
+},{"../support/SAT.min.js":8,"../support/functions.js":9,"./sprite":7,"lodash":12}],5:[function(require,module,exports){
+var keypress = require('../support/keypress');
 var Character = require('./character');
 var _ = require('lodash');
 var Map = require('./map');
@@ -433,7 +522,210 @@ Game.prototype.bindKeys = function(){
 
 module.exports = exports = Game;
 
-},{"./character":3,"./keypress":5,"./map":8,"lodash":12}],5:[function(require,module,exports){
+},{"../support/keypress":10,"./character":4,"./map":6,"lodash":12}],6:[function(require,module,exports){
+var _ = require('lodash');
+var createImage = require('../support/functions.js').createImage;
+var SAT = require('../support/SAT.min');
+var Block = require('./block.js');
+
+var Map = function(options, queuer){
+  this.initialize(options, queuer);
+};
+
+Map.prototype.initialize = function(options, queuer){
+  this.name = options.name;
+  this.width = options.w;
+  this.height = options.h;
+  this.queuer = queuer;
+  this.image = this.setImage(options.image);
+  this.objs = (options.objs) ? this.loadObjects(options.objs) : [];
+  this.blocks = (options.blocks) ? Block.makeGroup(options.blocks) : [];
+};
+
+Map.prototype.setImage = function(urlorimage){
+  var mode = typeof urlorimage;
+  if(mode === 'string'){
+    return createImage(urlorimage);
+  }
+  this.queuer(urlorimage);
+  return urlorimage;
+};
+
+Map.prototype.addBlock = function(block){
+  this.blocks.push(Block.make(block));
+};
+
+Map.prototype.addObj = function(obj){
+  obj.imagePath = obj.image;
+  obj.image = createImage(el.image, this.queuer);
+  this.objs.splice(_.sortedIndex(this.objs, obj, 'cutoff'), 0, obj);
+};
+
+Map.prototype.toJSON = function(){
+  return JSON.stringify({
+    name: this.name,
+    width: this.width,
+    objs: _.map(this.objs, function(obj){
+      return {cutoff: obj.cutoff, image: obj.imagePath};
+    }),
+    blocks: _.map(this.blocks, function(block){
+      return block.toHash();
+    })
+  });
+};
+
+Map.prototype.loadObjects = function(objs){
+  var Objs = _.map(objs, function(el){
+    el.imagePath = el.image;
+    el.image = createImage(el.image, this.queuer);
+    return el;
+  }, this);
+  return _.sortBy(Objs, 'cutoff');
+};
+
+
+Map.prototype.render = function(ctx, mode, character){
+  var toggle = 0;
+  
+  ctx.drawImage(this.image, 0, 0);
+
+  if(character){
+
+    _.each(this.objs, function(obj){
+        if(toggle === 0 && character.maxy() <= obj.cutoff ){
+            toggle = 1;
+            character.render(ctx);
+            ctx.drawImage(obj.image, obj.x, obj.y);
+        } else{
+            ctx.drawImage(obj.image, obj.x, obj.y);
+        }
+    });
+
+    if(toggle === 0){
+      character.render(ctx);
+    }
+  } else {
+    _.each(this.objs, function(obj){ ctx.drawImage(obj.image, obj.x, obj.y); });
+  }
+
+  if(mode){
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.25);';
+    _.each(this.blocks, function(block){
+      ctx.beginPath();
+      ctx.moveTo(block.box.points[0].x, block.box.points[0].y);
+      for(var i = 1; i < block.box.points.length; i++){
+        ctx.lineTo(block.box.points[i].x, block.box.points[i].y);
+      }
+      ctx.lineTo(block.box.points[0].x, block.box.points[0].y);
+      ctx.closePath();
+      ctx.fill();
+    }, this);
+  }
+};
+
+
+
+module.exports = exports = Map;
+
+},{"../support/SAT.min":8,"../support/functions.js":9,"./block.js":3,"lodash":12}],7:[function(require,module,exports){
+var exports;
+var createImage = require('../support/functions.js').createImage;
+
+var Sprite = function(address, w, h, queuer){
+  return {
+    dw: w,
+    dh: h,
+    img: createImage(address, queuer),
+    standing: {
+      front: {
+        sx: 3 * w,
+        sy: 0
+      },
+      back: {
+        sx: 2 * w,
+        sy: 0
+      },
+      right: {
+        sx: 1 * w,
+        sy: 0
+      },
+      left: {
+        sx: 0 * w,
+        sy: 0
+      }
+    }, walking: {
+      front: [{sx: 3 * w, sy: 1 * h},{sx: 3 * w, sy: 2 * h},{sx: 3 * w, sy: 3 * h},{sx: 3 * w, sy: 4 * h}],
+      back: [{sx: 2 * w, sy: 1 * h},{sx: 2 * w, sy: 2 * h},{sx: 2 * w, sy: 3 * h},{sx: 2 * w, sy: 4 * h}],
+      right: [{sx: 1 * w, sy: 1 * h},{sx: 1 * w, sy: 2 * h},{sx: 1 * w, sy: 3 * h},{sx: 1 * w, sy: 4 * h}],
+      left: [{sx: 0 * w, sy: 1 * h},{sx: 0 * w, sy: 2 * h},{sx: 0 * w, sy: 3 * h},{sx: 0 * w, sy: 4 * h}]
+    }
+  };
+};
+
+module.exports = exports = Sprite;
+
+},{"../support/functions.js":9}],8:[function(require,module,exports){
+/* SAT.js - Version 0.4.1 - Copyright 2014 - Jim Riecken <jimr@jimr.ca> - released under the MIT License. https://github.com/jriecken/sat-js */
+function w(){function a(b,k){this.x=b||0;this.y=k||0}function e(b,k){this.pos=b||new a;this.points=k||[];this.angle=0;this.offset=new a;this.recalc()}function u(b,k,c){this.pos=b||new a;this.w=k||0;this.h=c||0}function v(){this.b=this.a=null;this.overlapN=new a;this.overlapV=new a;this.clear()}function z(b,k,c){for(var a=Number.MAX_VALUE,f=-Number.MAX_VALUE,h=b.length,l=0;l<h;l++){var g=b[l].d(k);g<a&&(a=g);g>f&&(f=g)}c[0]=a;c[1]=f}function A(b,k,c,a,f,h){var l=q.pop(),g=q.pop();b=d.pop().c(k).sub(b);
+k=b.d(f);z(c,f,l);z(a,f,g);g[0]+=k;g[1]+=k;if(l[0]>g[1]||g[0]>l[1])return d.push(b),q.push(l),q.push(g),!0;h&&(c=0,l[0]<g[0]?(h.aInB=!1,l[1]<g[1]?(c=l[1]-g[0],h.bInA=!1):(c=l[1]-g[0],a=g[1]-l[0],c=c<a?c:-a)):(h.bInA=!1,l[1]>g[1]?(c=l[0]-g[1],h.aInB=!1):(c=l[1]-g[0],a=g[1]-l[0],c=c<a?c:-a)),a=Math.abs(c),a<h.overlap&&(h.overlap=a,h.overlapN.c(f),0>c&&h.overlapN.reverse()));d.push(b);q.push(l);q.push(g);return!1}function x(b,k){var c=b.e(),a=k.d(b);return 0>a?-1:a>c?1:0}function B(b,k,c){for(var a=
+d.pop().c(k.pos).sub(b.pos),f=k.r,h=f*f,l=b.calcPoints,g=l.length,s=d.pop(),p=d.pop(),m=0;m<g;m++){var e=m===g-1?0:m+1,q=0===m?g-1:m-1,t=0,r=null;s.c(b.edges[m]);p.c(a).sub(l[m]);c&&p.e()>h&&(c.aInB=!1);var n=x(s,p);if(-1===n){s.c(b.edges[q]);e=d.pop().c(a).sub(l[q]);n=x(s,e);if(1===n){n=p.f();if(n>f)return d.push(a),d.push(s),d.push(p),d.push(e),!1;c&&(c.bInA=!1,r=p.normalize(),t=f-n)}d.push(e)}else if(1===n){if(s.c(b.edges[e]),p.c(a).sub(l[e]),n=x(s,p),-1===n){n=p.f();if(n>f)return d.push(a),d.push(s),
+d.push(p),!1;c&&(c.bInA=!1,r=p.normalize(),t=f-n)}}else{e=s.g().normalize();n=p.d(e);q=Math.abs(n);if(0<n&&q>f)return d.push(a),d.push(e),d.push(p),!1;c&&(r=e,t=f-n,0<=n||t<2*f)&&(c.bInA=!1)}r&&c&&Math.abs(t)<Math.abs(c.overlap)&&(c.overlap=t,c.overlapN.c(r))}c&&(c.a=b,c.b=k,c.overlapV.c(c.overlapN).scale(c.overlap));d.push(a);d.push(s);d.push(p);return!0}function C(b,a,c){for(var d=b.calcPoints,f=d.length,h=a.calcPoints,l=h.length,g=0;g<f;g++)if(A(b.pos,a.pos,d,h,b.normals[g],c))return!1;for(g=0;g<
+l;g++)if(A(b.pos,a.pos,d,h,a.normals[g],c))return!1;c&&(c.a=b,c.b=a,c.overlapV.c(c.overlapN).scale(c.overlap));return!0}var m={};m.Vector=a;m.V=a;a.prototype.copy=a.prototype.c=function(b){this.x=b.x;this.y=b.y;return this};a.prototype.clone=a.prototype.i=function(){return new a(this.x,this.y)};a.prototype.perp=a.prototype.g=function(){var b=this.x;this.x=this.y;this.y=-b;return this};a.prototype.rotate=a.prototype.rotate=function(b){var a=this.x,c=this.y;this.x=a*Math.cos(b)-c*Math.sin(b);this.y=
+a*Math.sin(b)+c*Math.cos(b);return this};a.prototype.reverse=a.prototype.reverse=function(){this.x=-this.x;this.y=-this.y;return this};a.prototype.normalize=a.prototype.normalize=function(){var b=this.f();0<b&&(this.x/=b,this.y/=b);return this};a.prototype.add=a.prototype.add=function(b){this.x+=b.x;this.y+=b.y;return this};a.prototype.sub=a.prototype.sub=function(b){this.x-=b.x;this.y-=b.y;return this};a.prototype.scale=a.prototype.scale=function(b,a){this.x*=b;this.y*=a||b;return this};a.prototype.project=
+a.prototype.j=function(b){var a=this.d(b)/b.e();this.x=a*b.x;this.y=a*b.y;return this};a.prototype.projectN=a.prototype.k=function(b){var a=this.d(b);this.x=a*b.x;this.y=a*b.y;return this};a.prototype.reflect=function(b){var a=this.x,c=this.y;this.j(b).scale(2);this.x-=a;this.y-=c;return this};a.prototype.reflectN=function(b){var a=this.x,c=this.y;this.k(b).scale(2);this.x-=a;this.y-=c;return this};a.prototype.dot=a.prototype.d=function(b){return this.x*b.x+this.y*b.y};a.prototype.len2=a.prototype.e=
+function(){return this.d(this)};a.prototype.len=a.prototype.f=function(){return Math.sqrt(this.e())};m.Circle=function(b,k){this.pos=b||new a;this.r=k||0};m.Polygon=e;e.prototype.setPoints=function(b){this.points=b;this.recalc();return this};e.prototype.setAngle=function(b){this.angle=b;this.recalc();return this};e.prototype.setOffset=function(b){this.offset=b;this.recalc();return this};e.prototype.rotate=e.prototype.rotate=function(b){for(var a=this.points,c=a.length,d=0;d<c;d++)a[d].rotate(b);this.recalc();
+return this};e.prototype.translate=e.prototype.translate=function(b,a){for(var c=this.points,d=c.length,f=0;f<d;f++)c[f].x+=b,c[f].y+=a;this.recalc();return this};e.prototype.recalc=e.prototype.recalc=function(){var b,k=this.calcPoints=[],c=this.edges=[],d=this.normals=[],f=this.points,h=this.offset,l=this.angle,g=f.length;for(b=0;b<g;b++){var e=f[b].i();k.push(e);e.x+=h.x;e.y+=h.y;0!==l&&e.rotate(l)}for(b=0;b<g;b++)f=(new a).c(b<g-1?k[b+1]:k[0]).sub(k[b]),h=(new a).c(f).g().normalize(),c.push(f),
+d.push(h);return this};m.Box=u;u.prototype.toPolygon=u.prototype.l=function(){var b=this.pos,k=this.w,c=this.h;return new e(new a(b.x,b.y),[new a,new a(k,0),new a(k,c),new a(0,c)])};m.Response=v;v.prototype.clear=v.prototype.clear=function(){this.bInA=this.aInB=!0;this.overlap=Number.MAX_VALUE;return this};for(var d=[],r=0;10>r;r++)d.push(new a);for(var q=[],r=0;5>r;r++)q.push([]);var y=new v,D=(new u(new a,1,1)).l();m.pointInCircle=function(b,a){var c=d.pop().c(b).sub(a.pos),e=a.r*a.r,f=c.e();d.push(c);
+return f<=e};m.pointInPolygon=function(b,a){D.pos.c(b);y.clear();var c=C(D,a,y);c&&(c=y.aInB);return c};m.testCircleCircle=function(b,a,c){var e=d.pop().c(a.pos).sub(b.pos),f=b.r+a.r,h=e.e();if(h>f*f)return d.push(e),!1;c&&(h=Math.sqrt(h),c.a=b,c.b=a,c.overlap=f-h,c.overlapN.c(e.normalize()),c.overlapV.c(e).scale(c.overlap),c.aInB=b.r<=a.r&&h<=a.r-b.r,c.bInA=a.r<=b.r&&h<=b.r-a.r);d.push(e);return!0};m.testPolygonCircle=B;m.testCirclePolygon=function(a,d,c){if((a=B(d,a,c))&&c){d=c.a;var e=c.aInB;c.overlapN.reverse();
+c.overlapV.reverse();c.a=c.b;c.b=d;c.aInB=c.bInA;c.bInA=e}return a};m.testPolygonPolygon=C;return m}"function"===typeof define&&define.amd?define(w):"object"===typeof exports?module.exports=w():this.SAT=w();
+
+},{}],9:[function(require,module,exports){
+var SAT = require('./SAT.min.js');
+var Vector = SAT.Vector;
+var _ = require('lodash');
+
+exports.makeVector = function (point){
+    return new Vector(point.x, point.y);
+};
+
+exports.createImage = function (url, queuer){
+  var img = new Image();
+  if(queuer){
+    queuer(img);
+  }
+  img.src = url;
+  return img;
+};
+
+exports.addClass = function (classname, el){
+    var regex = new RegExp("\\s?" + classname + "\\s?"),
+        classlist = el.getAttribute('class') || '';
+
+        if(!regex.test(classlist)){
+            if(classlist === ''){    
+                el.setAttribute('class', classname);
+            } else {
+                el.setAttribute('class', classlist + ' ' + classname);
+            }
+        }
+};
+
+exports.querySelector = function(document){
+  return _.bind(document.querySelector, document);
+};
+
+exports.removeClass = function (classname, el){
+    var regex = new RegExp("\\s?(" + classname + ")\\s?"),
+        classlist = el.getAttribute('class') || '',
+        match = classlist.match(regex);
+
+        if(match){
+            el.setAttribute('class', classlist.replace(match[0], '').trim().replace(/\s{2,}/g, ' '));
+        }
+};
+
+module.exports = exports;
+},{"./SAT.min.js":8,"lodash":12}],10:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1484,224 +1776,15 @@ module.exports = exports = Game;
 return keypress;
 }));
 
-},{}],6:[function(require,module,exports){
-var bed = {image: 'assets/bed.gif', x: 295, y: 239, cutoff: 440},
-    objs = [bed],
-    wall1 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 0, y: 0}, {x:0,y: 414}, {x:315, y: 257}]},
-    wall2 = {offset: {x: 0, y: 0}, points: [{x: 315, y: 0}, {x: 315, y: 257}, {x:630,y: 414}, {x:630, y: 0}]},
-    wall3 = {offset: {x: 0, y: 0}, points: [{x: 0, y: 414}, {x: 12, y: 510}, {x: 104, y: 464}]},
-    wall4 = {offset: {x: 0, y: 0}, points: [{x: 210, y: 517}, {x: 116, y: 564}, {x: 320, y: 570}]},
-    wall5 = {offset: {x: 0, y: 0}, points: [{x: 310, y: 570}, {x: 630, y: 570}, {x: 630, y: 414}]},
-    exit = {opts: { blockType: 'exit', exit: {nextroom: 'TV Set', startpos: {x: 448, y: 198}}}, offset: {x: 0, y: 0}, points: [{x: 12, y: 512}, {x: 0, y: 570}, {x: 116, y: 564}]},
-    bedblock = {offset: {x: 0, y: 0}, points: [{x: 477, y: 346},{x:295,y:436},{x:430,y:502},{x:612,y:412}]},
-    blocks = [wall1, wall2, wall3, wall4, wall5, bedblock, exit];
-
-
-var map = {name:'Bedroom', image: 'assets/room1.gif', w: 630, h: 570, objs: objs, blocks: blocks};
-
-
-module.exports = exports = map;
-
-},{}],7:[function(require,module,exports){
-var block1 = {offset: {x:0, y: 0}, points: [
-    {x: 315, y: 0},
-    {x: 315, y: 248},
-    {x: 0, y: 406},
-    {x: 0, y:156}
-]}, block2 = {offset: {x:0, y: 0}, points: [
-    {x: 239, y: 287},
-    {x: 238, y: 270},
-    {x: 185, y: 321},
-    {x: 195, y: 325},
-    {x: 218, y: 315}
-]}, block3 = {offset: {x:0, y: 0}, points: [
-    {x: 325, y: 328},
-    {x: 303, y: 348},
-    {x: 303, y: 357},
-    {x: 400, y: 309},
-    {x: 400, y: 291}
-]}, block4 = {offset: {x:0, y: 0}, points: [
-    {x: 315, y: 0},
-    {x: 315, y: 249},
-    {x: 435, y: 309},
-    {x: 435, y: 60}
-]}, block5 = {offset: {x:0, y: 0}, points: [
-    {x: 315, y: 0},
-    {x: 401, y: 292},
-    {x: 401, y: 309},
-    {x: 435, y: 325}
-]}, block6 = {offset: {x:0, y: 0}, points: [
-    {x: 504, y: 94},
-    {x: 434, y: 60},
-    {x: 434, y: 326},
-    {x: 504, y: 290}
-]}, block7 = {offset: {x:0, y: 0}, points: [
-    {x: 575, y: 315},
-    {x: 505, y: 531},
-    {x: 630, y: 414},
-    {x: 630, y: 315}
-]}, block8 = {offset: {x:0, y: 0}, points: [
-    {x: 630, y: 323},
-    {x: 223, y: 524},
-    {x: 314, y: 570},
-    {x: 630, y: 413}
-]}, block9 = {offset: {x:0, y: 0}, points: [
-    {x: 502, y: 350},
-    {x: 630, y: 414},
-    {x: 572, y: 314}
-]}, block10 = {offset: {x:0, y: 0}, points: [
-    {x: 0, y: 412},
-    {x: 0, y: 570},
-    {x: 316, y: 570}
-]}, block11 = {offset: {x:0, y: 0}, points: [
-    {x: 331, y: 295},
-    {x: 331, y: 319},
-    {x: 355, y: 319},
-    {x: 355, y: 295}
-]}, block12 = {offset: {x:0, y: 0}, points: [
-    {x: 81, y: 396},
-    {x: 60, y: 404},
-    {x: 60, y: 414},
-    {x: 81, y: 424},
-    {x: 103, y: 413},
-    {x: 103, y: 402}
-]}, block13 = {offset: {x:0, y: 0}, points: [
-    {x: 0, y: 414},
-    {x: 194, y: 316},
-    {x: 194, y: 300},
-    {x: 0, y: 398}
-]}, exit = {offset: {x:0, y: 0}, opts:{ blockType: 'exit', exit: {nextroom: 'Bedroom', startpos: {x:88, y: 384}}}, points: [
-    {x: 504, y: 292},
-    {x: 573, y: 316},
-    {x: 569, y: 273}
-]},
-blocks = [block1, block2, block3, block4, block5, block6, block8, block9, block10, block11, block12, block13, exit];
-
-var objs = [
-    {image: 'assets/room-2-wall.gif', x: 442, y: 66, cutoff: 350},
-    {image: 'assets/mic.gif', x: 331, y: 214, cutoff: 301},
-    {image: 'assets/camera.gif', x: 58, y: 312, cutoff: 414},
-    {image: 'assets/bleachers.gif', x: 224, y: 308, cutoff: 570}
-];
-
-var map = {name: 'TV Set', image: 'assets/room2.gif', w: 630, h: 570, objs: objs, blocks: blocks};
-
-module.exports = exports = map;
-
-},{}],8:[function(require,module,exports){
-var _ = require('lodash');
-var createImage = require('./support.js').createImage;
-var SAT = require('./SAT.min');
-var Block = require('./block.js');
-
-var Map = function(options, queuer){
-  this.initialize(options, queuer);
-};
-
-Map.prototype.initialize = function(options, queuer){
-  this.name = options.name;
-  this.width = options.w;
-  this.height = options.h;
-  this.queuer = queuer;
-  this.image = this.setImage(options.image);
-  this.objs = (options.objs) ? this.loadObjects(options.objs) : [];
-  this.blocks = (options.blocks) ? Block.makeGroup(options.blocks) : [];
-};
-
-Map.prototype.setImage = function(urlorimage){
-  var mode = typeof urlorimage;
-  if(mode === 'string'){
-    return createImage(urlorimage);
-  }
-  this.queuer(urlorimage);
-  return urlorimage;
-};
-
-Map.prototype.addBlock = function(block){
-  this.blocks.push(Block.make(block));
-};
-
-Map.prototype.addObj = function(obj){
-  obj.imagePath = obj.image;
-  obj.image = createImage(el.image, this.queuer);
-  this.objs.splice(_.sortedIndex(this.objs, obj, 'cutoff'), 0, obj);
-};
-
-Map.prototype.toJSON = function(){
-  return JSON.stringify({
-    name: this.name,
-    width: this.width,
-    objs: _.map(this.objs, function(obj){
-      return {cutoff: obj.cutoff, image: obj.imagePath};
-    }),
-    blocks: _.map(this.blocks, function(block){
-      return block.toHash();
-    })
-  });
-};
-
-Map.prototype.loadObjects = function(objs){
-  var Objs = _.map(objs, function(el){
-    el.imagePath = el.image;
-    el.image = createImage(el.image, this.queuer);
-    return el;
-  }, this);
-  return _.sortBy(Objs, 'cutoff');
-};
-
-
-Map.prototype.render = function(ctx, mode, character){
-  var toggle = 0;
-  
-  ctx.drawImage(this.image, 0, 0);
-
-  if(character){
-
-    _.each(this.objs, function(obj){
-        if(toggle === 0 && character.maxy() <= obj.cutoff ){
-            toggle = 1;
-            character.render(ctx);
-            ctx.drawImage(obj.image, obj.x, obj.y);
-        } else{
-            ctx.drawImage(obj.image, obj.x, obj.y);
-        }
-    });
-
-    if(toggle === 0){
-      character.render(ctx);
-    }
-  } else {
-    _.each(this.objs, function(obj){ ctx.drawImage(obj.image, obj.x, obj.y); });
-  }
-
-  if(mode){
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.25);';
-    _.each(this.blocks, function(block){
-      ctx.beginPath();
-      ctx.moveTo(block.box.points[0].x, block.box.points[0].y);
-      for(var i = 1; i < block.box.points.length; i++){
-        ctx.lineTo(block.box.points[i].x, block.box.points[i].y);
-      }
-      ctx.lineTo(block.box.points[0].x, block.box.points[0].y);
-      ctx.closePath();
-      ctx.fill();
-    }, this);
-  }
-};
-
-
-
-module.exports = exports = Map;
-
-},{"./SAT.min":1,"./block.js":2,"./support.js":11,"lodash":12}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 (function(require){
 
     'use strict';
 
-    var Game = require('./game.js');
-    var map1 = require('./level1.js');
-    var map2 = require('./level2.js');
-    var $ = require('./support.js').querySelector(document);
+    var Game = require('../models/game.js');
+    var map1 = require('../data/levels/level1.js');
+    var map2 = require('../data/levels/level2.js');
+    var $ = require('../support/functions.js').querySelector(document);
 
     var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
     var container = $('#game');
@@ -1720,90 +1803,7 @@ module.exports = exports = Map;
     g.launch();
 
 }(require));
-},{"./game.js":4,"./level1.js":6,"./level2.js":7,"./support.js":11}],10:[function(require,module,exports){
-var exports;
-var createImage = require('./support.js').createImage;
-
-var Sprite = function(address, w, h, queuer){
-  return {
-    dw: w,
-    dh: h,
-    img: createImage(address, queuer),
-    standing: {
-      front: {
-        sx: 3 * w,
-        sy: 0
-      },
-      back: {
-        sx: 2 * w,
-        sy: 0
-      },
-      right: {
-        sx: 1 * w,
-        sy: 0
-      },
-      left: {
-        sx: 0 * w,
-        sy: 0
-      }
-    }, walking: {
-      front: [{sx: 3 * w, sy: 1 * h},{sx: 3 * w, sy: 2 * h},{sx: 3 * w, sy: 3 * h},{sx: 3 * w, sy: 4 * h}],
-      back: [{sx: 2 * w, sy: 1 * h},{sx: 2 * w, sy: 2 * h},{sx: 2 * w, sy: 3 * h},{sx: 2 * w, sy: 4 * h}],
-      right: [{sx: 1 * w, sy: 1 * h},{sx: 1 * w, sy: 2 * h},{sx: 1 * w, sy: 3 * h},{sx: 1 * w, sy: 4 * h}],
-      left: [{sx: 0 * w, sy: 1 * h},{sx: 0 * w, sy: 2 * h},{sx: 0 * w, sy: 3 * h},{sx: 0 * w, sy: 4 * h}]
-    }
-  };
-};
-
-module.exports = exports = Sprite;
-
-},{"./support.js":11}],11:[function(require,module,exports){
-var SAT = require('./SAT.min.js');
-var Vector = SAT.Vector;
-var _ = require('lodash');
-
-exports.makeVector = function (point){
-    return new Vector(point.x, point.y);
-};
-
-exports.createImage = function (url, queuer){
-  var img = new Image();
-  if(queuer){
-    queuer(img);
-  }
-  img.src = url;
-  return img;
-};
-
-exports.addClass = function (classname, el){
-    var regex = new RegExp("\\s?" + classname + "\\s?"),
-        classlist = el.getAttribute('class') || '';
-
-        if(!regex.test(classlist)){
-            if(classlist === ''){    
-                el.setAttribute('class', classname);
-            } else {
-                el.setAttribute('class', classlist + ' ' + classname);
-            }
-        }
-};
-
-exports.querySelector = function(document){
-  return _.bind(document.querySelector, document);
-};
-
-exports.removeClass = function (classname, el){
-    var regex = new RegExp("\\s?(" + classname + ")\\s?"),
-        classlist = el.getAttribute('class') || '',
-        match = classlist.match(regex);
-
-        if(match){
-            el.setAttribute('class', classlist.replace(match[0], '').trim().replace(/\s{2,}/g, ' '));
-        }
-};
-
-module.exports = exports;
-},{"./SAT.min.js":1,"lodash":12}],12:[function(require,module,exports){
+},{"../data/levels/level1.js":1,"../data/levels/level2.js":2,"../models/game.js":5,"../support/functions.js":9}],12:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -8592,4 +8592,4 @@ module.exports = exports;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[9]);
+},{}]},{},[11]);

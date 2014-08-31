@@ -1,7 +1,7 @@
 var Sprite = require('./sprite');
-var Box = require('./SAT.min.js').Box;
-var testPolygonPolygon = require('./SAT.min.js').testPolygonPolygon;
-var makeVector = require('./support').makeVector;
+var Box = require('../support/SAT.min.js').Box;
+var testPolygonPolygon = require('../support/SAT.min.js').testPolygonPolygon;
+var makeVector = require('../support/functions.js').makeVector;
 var _ = require('lodash');
 var exports;
 

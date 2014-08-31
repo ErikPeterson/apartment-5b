@@ -1,4 +1,4 @@
-var keypress = require('./keypress');
+var keypress = require('../support/keypress');
 var Character = require('./character');
 var _ = require('lodash');
 var Map = require('./map');
