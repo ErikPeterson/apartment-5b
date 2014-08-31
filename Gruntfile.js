@@ -10,52 +10,114 @@ module.exports = function(grunt){
       }
     },
     browserify:{
-      iso: {
-        src: ['<%= pkg.main %>.js'],
-        dest: './dist/js/index.js'
+      dev: {
+        options: {
+          broweserifyOptions:{
+            debug: true
+          }
+        },
+        files:{
+          './dev/js/index.js': '<%= pkg.main %>.js',
+          './dev/js/editor.js': './js/views/editor.js'
+        }
       },
-      editor: {
-        src: ['./js/views/editor.js'],
-        dest: './dist/js/editor.js'
+      prod: {
+        files:{
+          './prod/js/index.js': '<%= pkg.main %>.js',
+          './prod/js/editor.js': './js/views/editor.js'
+        }
       }
     },
+    uglify: {
+      prod: {
+        options:{
+          mangle: false
+        },
+        files: {
+          'prod/js/index.js':['prod/js/index.js'],
+          'prod/js/editor.js':['prod/js/editor.js']
+        }
+      },
+    },
     copy: {
-      images:{
-        files:[{
+      prod: {
+        images:{
+          files:[{
+              expand: true,
+              cwd: './',
+              src:['assets/*','!assets/*.psd'],
+              dest: 'prod/'
+          }]
+        },
+        html:{
+          files:[{
+            expand: true,
+            cwd: './html/',
+            src:['*'],
+            dest:'./prod/'
+          }
+          ]
+        },
+        fonts: {
+          files: [{
             expand: true,
             cwd: './',
-            src:['assets/*','!assets/*.psd'],
-            dest: 'dist/'
-        }]
-      },
-      html:{
-        files:[{
-          expand: true,
-          cwd: './html/',
-          src:['*'],
-          dest:'./dist/'
+            src: ['assets/fonts/*'],
+            dest: 'prod/'
+          }]
         }
-        ]
       },
-      fonts: {
-        files: [{
-          expand: true,
-          cwd: './',
-          src: ['assets/fonts/*'],
-          dest: 'dist/'
-        }]
+      dev:{
+        images:{
+          files:[{
+              expand: true,
+              cwd: './',
+              src:['assets/*','!assets/*.psd'],
+              dest: 'dev/'
+          }]
+        },
+        html:{
+          files:[{
+            expand: true,
+            cwd: './html/',
+            src:['*'],
+            dest:'./dev/'
+          }
+          ]
+        },
+        fonts: {
+          files: [{
+            expand: true,
+            cwd: './',
+            src: ['assets/fonts/*'],
+            dest: 'dev/'
+          }]
+        }
       }
     },
     sass:{
-      main: {
+      dev: {
         options: {
-          style: 'expanded'
+          style: 'expanded',
+          lineNumbers: true
         },
         files: [{
           expand: true,
           cwd: './sass',
           src:['main.scss'],
-          dest: 'dist/css/',
+          dest: 'dev/css/',
+          ext: '.css'
+        }]
+      },
+      prod: {
+        options: {
+          style: 'compressed'
+        },
+        files: [{
+          expand: true,
+          cwd: './sass',
+          src:['main.scss'],
+          dest: 'prod/css/',
           ext: '.css'
         }]
       }
@@ -64,9 +126,13 @@ module.exports = function(grunt){
       options: {
         browsers: ['last 2 version']
       },
-      main: {
-        src: 'dist/css/main.css',
-        dest: 'dist/css/main.css'
+      dev: {
+        src: 'dev/css/main.css',
+        dest: 'dev/css/main.css'
+      },
+      prod: {
+        src: 'prod/css/main.css',
+        dest: 'prod/css/main.css'
       }
     },
     jshint: {
@@ -79,7 +145,7 @@ module.exports = function(grunt){
       server: {
         options: {
           port: 3000,
-          base: 'dist',
+          base: 'dev',
           keepalive: true
         }
       }
@@ -87,19 +153,19 @@ module.exports = function(grunt){
     watch: {
       scripts: {
         files:'./js/**/*.js',
-        tasks: ['jshint','browserify']
+        tasks: ['jshint','browserify:dev']
       },
       sass: {
         files: './sass/**/*.scss',
-        tasks: ['sass', 'autoprefixer']
+        tasks: ['sass:dev', 'autoprefixer:dev']
       },
       html: {
         files: './html/*',
-        tasks: ['copy:html']
+        tasks: ['copy:dev:html']
       },
       images: {
         files: ['assets/*','!assets/*.psd'],
-        tasks: ['copy:images']
+        tasks: ['copy:dev:images']
       }
       }
   });
@@ -112,8 +178,10 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-concurrent');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('default', ['jshint','browserify', 'copy:images','copy:html', 'sass']);
-  grunt.registerTask('serve', ['concurrent:server']);
+  grunt.registerTask('builddev', ['jshint','browserify', 'copy:dev', 'sass:dev', 'autoprefixer:dev']);
+  grunt.registerTask('buildprod', ['jshint','browserify:prod', 'copy:prod', 'sass:prod', 'autoprefixer:prod', 'uglify:prod']);
+  grunt.registerTask('devserve', ['concurrent:server']);
 
 };
