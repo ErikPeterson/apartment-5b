@@ -1,6 +1,7 @@
 module.exports = function(grunt){
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    secret: grunt.file.readJson('secrets.json'),
     concurrent: {
       server: {
         tasks:['watch','connect'],
@@ -162,8 +163,21 @@ module.exports = function(grunt){
         files: ['assets/*','!assets/*.psd'],
         tasks: ['copy:dev']
       }
-      }
-  });
+    },
+    environments: {
+      production:{
+        options:{
+          password: '<%= secret.production.password %>',
+          host:'<%= secret.production.host %>',
+          username: '<%= secret.production.username %>',
+          debug: true,
+          deployPath: '<%= secret.production.deployPath %>',
+          localPath: '<%= secret.production.localPath %>'
+        }
+      } 
+  }
+
+});
 
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -175,6 +189,7 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
+  grunt.loadNpmTasks('grunt-ssh-deploy');
 
   grunt.registerTask('builddev', ['jshint','browserify:dev', 'copy:dev', 'sass:dev', 'autoprefixer:dev']);
   grunt.registerTask('buildprod', ['jshint','browserify:prod', 'copy:prod', 'sass:prod', 'autoprefixer:prod', 'uglify:prod', 'htmlmin:prod']);
