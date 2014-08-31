@@ -1,7 +1,7 @@
 module.exports = function(grunt){
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    secret: grunt.file.readJson('secrets.json'),
+    secret: grunt.file.readJSON('secrets.json'),
     concurrent: {
       server: {
         tasks:['watch','connect'],
@@ -171,8 +171,10 @@ module.exports = function(grunt){
           host:'<%= secret.production.host %>',
           username: '<%= secret.production.username %>',
           debug: true,
-          deployPath: '<%= secret.production.deployPath %>',
-          localPath: '<%= secret.production.localPath %>'
+          deploy_path: '<%= secret.production.deploy_path %>',
+          local_path: '<%= secret.production.local_path %>',
+          current_symlink: 'current',
+          port: 22
         }
       } 
   }
