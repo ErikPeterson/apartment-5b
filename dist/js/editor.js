@@ -12,7 +12,6 @@ var MapEditor = function(canvas, ctx, bg){
     this.targetFps = 30;
     this.tools = {};
     this.canvas = canvas;
-    console.log(canvas);
     this.ctx = ctx;
     this.imgs =[];
     this.imgs =[];
@@ -21,7 +20,6 @@ var MapEditor = function(canvas, ctx, bg){
 };
 
 MapEditor.prototype.on = function(eventname, fn, context){
-    console.log(eventname, fn, context);
     if(!this.events[eventname]){
         this.events[eventname] = [];
     }
@@ -1418,7 +1416,8 @@ return keypress;
         events: {
             'click button#set-image': 'setImage',
             'change #map-name': 'setName',
-            'click #close-modal': 'closeModal'
+            'click #close-modal': 'closeModal',
+            'click #canvas': 'handleClick'
         },
         initialize: function(){
             this.render();
@@ -1439,14 +1438,12 @@ return keypress;
             var val = this.imagefield.val(),
                 regexp = /^\s+$/;
 
-            console.log('butt');
-
             if(regexp.test(val) || val === ''){
                 this.renderModal(this.warning({text:'Bad image path, try again.'}));
                 return;
             }
 
-            this.imagefield.parent('fieldset').remove();
+            this.imagefield.parents('fieldset').remove();
             var image = new Image();
             image.src = val;
             $(image).on('load', (function(){
@@ -1468,6 +1465,17 @@ return keypress;
             var name = this.namefield.val();
             console.log('butt');
             this.MapEditor.changeMapName(name);
+        },
+        handleClick: function(e){
+            var offset = $(this).offset(),
+                xpos = e.clientX - offset.left,
+                ypos = e.clientY - offset.top;
+
+            if(!this.map || !this.map.currentTool){
+                return;
+            }
+
+            this.map.currentTool(xpos, ypos);
         }
     });
 $(function(){

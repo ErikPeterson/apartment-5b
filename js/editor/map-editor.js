@@ -11,7 +11,6 @@ var MapEditor = function(canvas, ctx, bg){
     this.targetFps = 30;
     this.tools = {};
     this.canvas = canvas;
-    console.log(canvas);
     this.ctx = ctx;
     this.imgs =[];
     this.imgs =[];
@@ -20,7 +19,6 @@ var MapEditor = function(canvas, ctx, bg){
 };
 
 MapEditor.prototype.on = function(eventname, fn, context){
-    console.log(eventname, fn, context);
     if(!this.events[eventname]){
         this.events[eventname] = [];
     }
