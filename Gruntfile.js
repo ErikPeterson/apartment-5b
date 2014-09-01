@@ -24,8 +24,8 @@ module.exports = function(grunt){
       },
       prod: {
         files:{
-          './prod/js/index.js': '<%= pkg.main %>.js',
-          './prod/js/editor.js': './js/views/editor.js'
+          './prod/app/js/index.js': '<%= pkg.main %>.js',
+          './prod/app/js/editor.js': './js/views/editor.js'
         }
       }
     },
@@ -35,8 +35,8 @@ module.exports = function(grunt){
           mangle: false
         },
         files: {
-          'prod/js/index.js':['prod/js/index.js'],
-          'prod/js/editor.js':['prod/js/editor.js']
+          'prod/app/js/index.js':['prod/app/js/index.js'],
+          'prod/app/js/editor.js':['prod/app/js/editor.js']
         }
       },
     },
@@ -47,8 +47,8 @@ module.exports = function(grunt){
           collapseWhitespace: true
         },
         files:{
-          'prod/index.html':'prod/index.html',
-          'prod/editor.html':'prod/editor.html'
+          'prod/app/index.html':'prod/app/index.html',
+          'prod/app/editor.html':'prod/app/editor.html'
         }
       }
     },
@@ -58,17 +58,17 @@ module.exports = function(grunt){
               expand: true,
               cwd: './',
               src:['assets/*','!assets/*.psd'],
-              dest: 'prod/'
+              dest: 'prod/app/'
           },{
             expand: true,
             cwd: './html/',
             src:['*.html'],
-            dest:'./prod/'
+            dest:'./prod/app/'
           },{
             expand: true,
             cwd: './',
             src: ['assets/fonts/*'],
-            dest: 'prod/'
+            dest: 'prod/app/'
           }]
       },
       dev:{
@@ -113,7 +113,7 @@ module.exports = function(grunt){
           expand: true,
           cwd: './sass',
           src:['main.scss'],
-          dest: 'prod/css/',
+          dest: 'prod/app/css/',
           ext: '.css'
         }]
       }
@@ -127,8 +127,8 @@ module.exports = function(grunt){
         dest: 'dev/css/main.css'
       },
       prod: {
-        src: 'prod/css/main.css',
-        dest: 'prod/css/main.css'
+        src: 'prod/app/css/main.css',
+        dest: 'prod/app/css/main.css'
       }
     },
     jshint: {
@@ -174,6 +174,8 @@ module.exports = function(grunt){
           deploy_path: '<%= secret.production.deploy_path %>',
           local_path: '<%= secret.production.local_path %>',
           current_symlink: 'current',
+          before_deploy: 'cd <%= secret.production.deploy_path %>/current && forever stopall',
+          after_deploy: 'cd <%= secret.production.deploy_path %>/current && bash ./start',
           port: 22
         }
       } 

@@ -45,15 +45,14 @@
             }
 
             this.imagefield.parents('fieldset').remove();
+            
             var image = new Image();
             image.src = val;
+            
             $(image).on('load', (function(){
-                                this.mapEditor = new MapEditor(this.canvas, this.ctx, image);
-                                this.$el.find('#editor-viewport').removeClass('hidden');
-                            }).bind(this));
-                        
-            
-            
+                    this.mapEditor = new MapEditor(this.canvas, this.ctx, image);
+                    this.$el.find('#editor-viewport').removeClass('hidden');
+                }).bind(this));    
         },
         renderModal: function(html){
             this.$modal.find('#modal-container').html(html);
