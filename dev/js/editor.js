@@ -1,4 +1,54 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(require){
+    var $ = require('jquery');
+    var MapEditorView = require('../views/editor.js');
+
+    $(function(){
+        var me = new MapEditorView({el: $('#editor-container')});
+    });
+
+}(require));
+},{"../views/editor.js":8,"jquery":11}],2:[function(require,module,exports){
+var makeVector = require('../support/functions.js').makeVector;
+var _ = require('lodash');
+var SAT = require('../support/SAT.min.js');
+var Polygon = SAT.Polygon;
+
+var defaults = {
+    type: 'block'
+};
+
+
+var Block = function(offset, points, opts){
+    var obj = _.defaults(opts, defaults),
+        origin = makeVector(offset),
+        vectors = _.map(points, makeVector, this);
+
+        this.opts = opts || {};
+        this.offset = offset;
+        this.points = points;
+        this.box = new Polygon(origin, vectors);
+        this.blockType = this.opts.blockType || 'block';
+
+        if(this.blockType === 'exit'){
+            this.exit = _.clone(this.opts.exit, true);
+        }
+};
+
+Block.make = function(hash){
+    return new Block(hash.offset, hash.points, hash.opts);
+};
+
+Block.prototype.toHash = function(){
+    return {offset: this.offset, points: this.points, opts: this.opts};
+};
+
+Block.makeGroup = function(arr){
+    return _.map(arr, Block.make);
+};
+
+module.exports = exports = Block;
+},{"../support/SAT.min.js":5,"../support/functions.js":6,"lodash":12}],3:[function(require,module,exports){
 var Map = require('../models/map.js');
 var keypress = require('../support/keypress.js');
 var createImage = require('../support/functions.js').createImage;
@@ -139,47 +189,7 @@ MapEditor.prototype.draw = function(){
 };
 
 module.exports = exports = MapEditor;
-},{"../models/map.js":3,"../support/functions.js":5,"../support/keypress.js":6,"lodash":11}],2:[function(require,module,exports){
-var makeVector = require('../support/functions.js').makeVector;
-var _ = require('lodash');
-var SAT = require('../support/SAT.min.js');
-var Polygon = SAT.Polygon;
-
-var defaults = {
-    type: 'block'
-};
-
-
-var Block = function(offset, points, opts){
-    var obj = _.defaults(opts, defaults),
-        origin = makeVector(offset),
-        vectors = _.map(points, makeVector, this);
-
-        this.opts = opts || {};
-        this.offset = offset;
-        this.points = points;
-        this.box = new Polygon(origin, vectors);
-        this.blockType = this.opts.blockType || 'block';
-
-        if(this.blockType === 'exit'){
-            this.exit = _.clone(this.opts.exit, true);
-        }
-};
-
-Block.make = function(hash){
-    return new Block(hash.offset, hash.points, hash.opts);
-};
-
-Block.prototype.toHash = function(){
-    return {offset: this.offset, points: this.points, opts: this.opts};
-};
-
-Block.makeGroup = function(arr){
-    return _.map(arr, Block.make);
-};
-
-module.exports = exports = Block;
-},{"../support/SAT.min.js":4,"../support/functions.js":5,"lodash":11}],3:[function(require,module,exports){
+},{"../models/map.js":4,"../support/functions.js":6,"../support/keypress.js":7,"lodash":12}],4:[function(require,module,exports){
 var _ = require('lodash');
 var createImage = require('../support/functions.js').createImage;
 var SAT = require('../support/SAT.min');
@@ -212,10 +222,31 @@ Map.prototype.addBlock = function(block){
   this.blocks.push(Block.make(block));
 };
 
+Map.prototype.removeBlock = function(name){
+  _.remove(this.blocks, {name: name});
+};
+
+Map.prototype.removeBlockGroup = function(group){
+  _.remove(this.blocks, {group: group});
+};
+
+Map.prototype.loadObjects = function(objs){
+  var Objs = _.map(objs, function(el){
+    el.imagePath = el.image;
+    el.image = createImage(el.image, this.queuer);
+    return el;
+  }, this);
+  return _.sortBy(Objs, 'cutoff');
+};
+
 Map.prototype.addObj = function(obj){
   obj.imagePath = obj.image;
   obj.image = createImage(el.image, this.queuer);
   this.objs.splice(_.sortedIndex(this.objs, obj, 'cutoff'), 0, obj);
+};
+
+Map.prototype.removeObj = function(name){
+  _.remove(this.objs, {name: name});
 };
 
 Map.prototype.toJSON = function(){
@@ -229,15 +260,6 @@ Map.prototype.toJSON = function(){
       return block.toHash();
     })
   });
-};
-
-Map.prototype.loadObjects = function(objs){
-  var Objs = _.map(objs, function(el){
-    el.imagePath = el.image;
-    el.image = createImage(el.image, this.queuer);
-    return el;
-  }, this);
-  return _.sortBy(Objs, 'cutoff');
 };
 
 
@@ -284,7 +306,7 @@ Map.prototype.render = function(ctx, mode, character){
 
 module.exports = exports = Map;
 
-},{"../support/SAT.min":4,"../support/functions.js":5,"./block.js":2,"lodash":11}],4:[function(require,module,exports){
+},{"../support/SAT.min":5,"../support/functions.js":6,"./block.js":2,"lodash":12}],5:[function(require,module,exports){
 /* SAT.js - Version 0.4.1 - Copyright 2014 - Jim Riecken <jimr@jimr.ca> - released under the MIT License. https://github.com/jriecken/sat-js */
 function w(){function a(b,k){this.x=b||0;this.y=k||0}function e(b,k){this.pos=b||new a;this.points=k||[];this.angle=0;this.offset=new a;this.recalc()}function u(b,k,c){this.pos=b||new a;this.w=k||0;this.h=c||0}function v(){this.b=this.a=null;this.overlapN=new a;this.overlapV=new a;this.clear()}function z(b,k,c){for(var a=Number.MAX_VALUE,f=-Number.MAX_VALUE,h=b.length,l=0;l<h;l++){var g=b[l].d(k);g<a&&(a=g);g>f&&(f=g)}c[0]=a;c[1]=f}function A(b,k,c,a,f,h){var l=q.pop(),g=q.pop();b=d.pop().c(k).sub(b);
 k=b.d(f);z(c,f,l);z(a,f,g);g[0]+=k;g[1]+=k;if(l[0]>g[1]||g[0]>l[1])return d.push(b),q.push(l),q.push(g),!0;h&&(c=0,l[0]<g[0]?(h.aInB=!1,l[1]<g[1]?(c=l[1]-g[0],h.bInA=!1):(c=l[1]-g[0],a=g[1]-l[0],c=c<a?c:-a)):(h.bInA=!1,l[1]>g[1]?(c=l[0]-g[1],h.aInB=!1):(c=l[1]-g[0],a=g[1]-l[0],c=c<a?c:-a)),a=Math.abs(c),a<h.overlap&&(h.overlap=a,h.overlapN.c(f),0>c&&h.overlapN.reverse()));d.push(b);q.push(l);q.push(g);return!1}function x(b,k){var c=b.e(),a=k.d(b);return 0>a?-1:a>c?1:0}function B(b,k,c){for(var a=
@@ -299,7 +321,7 @@ d.push(h);return this};m.Box=u;u.prototype.toPolygon=u.prototype.l=function(){va
 return f<=e};m.pointInPolygon=function(b,a){D.pos.c(b);y.clear();var c=C(D,a,y);c&&(c=y.aInB);return c};m.testCircleCircle=function(b,a,c){var e=d.pop().c(a.pos).sub(b.pos),f=b.r+a.r,h=e.e();if(h>f*f)return d.push(e),!1;c&&(h=Math.sqrt(h),c.a=b,c.b=a,c.overlap=f-h,c.overlapN.c(e.normalize()),c.overlapV.c(e).scale(c.overlap),c.aInB=b.r<=a.r&&h<=a.r-b.r,c.bInA=a.r<=b.r&&h<=b.r-a.r);d.push(e);return!0};m.testPolygonCircle=B;m.testCirclePolygon=function(a,d,c){if((a=B(d,a,c))&&c){d=c.a;var e=c.aInB;c.overlapN.reverse();
 c.overlapV.reverse();c.a=c.b;c.b=d;c.aInB=c.bInA;c.bInA=e}return a};m.testPolygonPolygon=C;return m}"function"===typeof define&&define.amd?define(w):"object"===typeof exports?module.exports=w():this.SAT=w();
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var SAT = require('./SAT.min.js');
 var Vector = SAT.Vector;
 var _ = require('lodash');
@@ -345,7 +367,7 @@ exports.removeClass = function (classname, el){
 };
 
 module.exports = exports;
-},{"./SAT.min.js":4,"lodash":11}],6:[function(require,module,exports){
+},{"./SAT.min.js":5,"lodash":12}],7:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -1396,7 +1418,7 @@ module.exports = exports;
 return keypress;
 }));
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function(require){
     
     'use strict';
@@ -1407,7 +1429,7 @@ return keypress;
 
     Backbone.$ = $;
 
-    var MapEditor = require('../editor/map-editor.js');
+    var MapEditor = require('../models/map-editor.js');
 
     var MapEditorView = Backbone.View.extend({
         tagName: 'div',
@@ -1462,7 +1484,6 @@ return keypress;
         },
         setMapName: function(){
             var name = this.namefield.val();
-            console.log('butt');
             this.MapEditor.changeMapName(name);
         },
         handleClick: function(e){
@@ -1477,19 +1498,13 @@ return keypress;
             this.map.currentTool(xpos, ypos);
         }
     });
-$(function(){
-    var me = new MapEditorView({el: $('#editor-container')});
 
-    me.on('all', function(eventName){
-    console.log('Name of View: ' + eventName);
-});
-
-});
+module.exports = MapEditorView;
     
 }(require));
 
 
-},{"../editor/map-editor.js":1,"backbone":8,"jquery":10,"lodash":11}],8:[function(require,module,exports){
+},{"../models/map-editor.js":3,"backbone":9,"jquery":11,"lodash":12}],9:[function(require,module,exports){
 //     Backbone.js 1.1.2
 
 //     (c) 2010-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -3099,7 +3114,7 @@ $(function(){
 
 }));
 
-},{"underscore":9}],9:[function(require,module,exports){
+},{"underscore":10}],10:[function(require,module,exports){
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -4516,7 +4531,7 @@ $(function(){
   }
 }.call(this));
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -13708,7 +13723,7 @@ return jQuery;
 
 }));
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -20497,4 +20512,4 @@ return jQuery;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[7]);
+},{}]},{},[1]);

@@ -2,25 +2,45 @@
 
     'use strict';
 
+    var _ = require('lodash');
+    var Backbone = require('backbone');
+    var $        = require('jquery');
+        Backbone.$ = $;
+
     var Game = require('../models/game.js');
-    var map1 = require('../data/levels/level1.js');
-    var map2 = require('../data/levels/level2.js');
-    var $ = require('../support/functions.js').querySelector(document);
+    var Map1 = require('../data/levels/level1.js');
+    var Map2 = require('../data/levels/level2.js');
 
-    var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
-    var container = $('#game');
-    var canvas = container.appendChild(document.createElement('canvas'));
-    
-    container.appendChild(canvas);
-    canvas.setAttribute('id', 'canvas');
+    var GameView = Backbone.View.extend({
+        selector: '#canvas',
+        tagName: 'canvas',
+        $parent: $('#game'),
+        initialize: function(){
+            console.log('butt');
+            this.render();
+            return this;
+        },
+        render: function(){
+            if(!this.game){
+                return this.initRender();
+            }
 
-    var g = new Game(canvas, kramer);
+            return this;
+        },
+        initRender: function(){
+            var kramer = {sprite: 'assets/kramer-sprite.gif', name:'Kramer', w: 64, h: 128};
+            
+            this.$parent.append(this.$el);
+            this.game = new Game(this.el, kramer);
+            this.game.registerMap(Map1);
+            this.game.registerMap(Map2);
+            this.game.loadMap('Bedroom', {x: 260, y: 250});
+            this.game.launch();
 
-    g.registerMap(map1);
-    g.registerMap(map2);
+            return this;
+        }
+    });
 
-    g.loadMap('Bedroom', {x: 260, y: 250});
-
-    g.launch();
+    module.exports = GameView;
 
 }(require));

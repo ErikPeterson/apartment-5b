@@ -30,10 +30,31 @@ Map.prototype.addBlock = function(block){
   this.blocks.push(Block.make(block));
 };
 
+Map.prototype.removeBlock = function(name){
+  _.remove(this.blocks, {name: name});
+};
+
+Map.prototype.removeBlockGroup = function(group){
+  _.remove(this.blocks, {group: group});
+};
+
+Map.prototype.loadObjects = function(objs){
+  var Objs = _.map(objs, function(el){
+    el.imagePath = el.image;
+    el.image = createImage(el.image, this.queuer);
+    return el;
+  }, this);
+  return _.sortBy(Objs, 'cutoff');
+};
+
 Map.prototype.addObj = function(obj){
   obj.imagePath = obj.image;
   obj.image = createImage(el.image, this.queuer);
   this.objs.splice(_.sortedIndex(this.objs, obj, 'cutoff'), 0, obj);
+};
+
+Map.prototype.removeObj = function(name){
+  _.remove(this.objs, {name: name});
 };
 
 Map.prototype.toJSON = function(){
@@ -47,15 +68,6 @@ Map.prototype.toJSON = function(){
       return block.toHash();
     })
   });
-};
-
-Map.prototype.loadObjects = function(objs){
-  var Objs = _.map(objs, function(el){
-    el.imagePath = el.image;
-    el.image = createImage(el.image, this.queuer);
-    return el;
-  }, this);
-  return _.sortBy(Objs, 'cutoff');
 };
 
 

@@ -1,6 +1,12 @@
 #!/bin/bash
+timestamp() {
+  date +"%T"
+}
+
+echo "Starting new process at: $(timestamp)"
 echo "Current working dir:" >> /root/logs/server_output.log 2>&1
 pwd  >> /root/logs/server_output.log 2>&1
-
 echo "Beginning to start server" >> /root/logs/server_output.log
-/root/.nvm/v0.10.31/bin/forever -v server.js >> /root/logs/server_output.log 2>&1
+forever -v server.js >> /root/logs/server_output.log 2>&1
+
+return

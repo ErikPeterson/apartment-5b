@@ -8,7 +8,7 @@
 
     Backbone.$ = $;
 
-    var MapEditor = require('../editor/map-editor.js');
+    var MapEditor = require('../models/map-editor.js');
 
     var MapEditorView = Backbone.View.extend({
         tagName: 'div',
@@ -63,7 +63,6 @@
         },
         setMapName: function(){
             var name = this.namefield.val();
-            console.log('butt');
             this.MapEditor.changeMapName(name);
         },
         handleClick: function(e){
@@ -78,14 +77,8 @@
             this.map.currentTool(xpos, ypos);
         }
     });
-$(function(){
-    var me = new MapEditorView({el: $('#editor-container')});
 
-    me.on('all', function(eventName){
-    console.log('Name of View: ' + eventName);
-});
-
-});
+module.exports = MapEditorView;
     
 }(require));
 

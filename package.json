@@ -2,7 +2,7 @@
   "name": "apartment-5b",
   "version": "0.0.0",
   "description": "Isometric game.",
-  "main": "./js/views/game",
+  "main": "./js/bin/game",
   "keywords": [
     "js",
     "games",

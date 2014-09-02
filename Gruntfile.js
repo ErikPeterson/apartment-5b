@@ -19,13 +19,13 @@ module.exports = function(grunt){
         },
         files:{
           './dev/js/index.js': '<%= pkg.main %>.js',
-          './dev/js/editor.js': './js/views/editor.js'
+          './dev/js/editor.js': './js/bin/editor.js'
         }
       },
       prod: {
         files:{
           './prod/app/js/index.js': '<%= pkg.main %>.js',
-          './prod/app/js/editor.js': './js/views/editor.js'
+          './prod/app/js/editor.js': './js/bin/editor.js'
         }
       }
     },
@@ -174,7 +174,7 @@ module.exports = function(grunt){
           deploy_path: '<%= secret.production.deploy_path %>',
           local_path: '<%= secret.production.local_path %>',
           current_symlink: 'current',
-          before_deploy: 'cd <%= secret.production.deploy_path %>/current && forever stopall',
+          before_deploy: 'cd <%= secret.production.deploy_path %>/current && bash ./stop',
           after_deploy: 'cd <%= secret.production.deploy_path %>/current && bash ./start',
           port: 22
         }
