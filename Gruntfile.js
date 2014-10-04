@@ -19,13 +19,13 @@ module.exports = function(grunt){
         },
         files:{
           './dev/js/index.js': '<%= pkg.main %>.js',
-          './dev/js/editor.js': './js/bin/editor.js'
+          './dev/js/editor.js': './app/js/bin/editor.js'
         }
       },
       prod: {
         files:{
           './prod/app/js/index.js': '<%= pkg.main %>.js',
-          './prod/app/js/editor.js': './js/bin/editor.js'
+          './prod/app/js/editor.js': './app/js/bin/editor.js'
         }
       }
     },
@@ -56,17 +56,17 @@ module.exports = function(grunt){
       prod: {
           files:[{
               expand: true,
-              cwd: './',
+              cwd: './app',
               src:['assets/*','!assets/*.psd'],
               dest: 'prod/app/'
           },{
             expand: true,
-            cwd: './html/',
+            cwd: './app/html/',
             src:['*.html'],
             dest:'./prod/app/'
           },{
             expand: true,
-            cwd: './',
+            cwd: './app',
             src: ['assets/fonts/*'],
             dest: 'prod/app/'
           }]
@@ -74,17 +74,17 @@ module.exports = function(grunt){
       dev:{
           files:[{
               expand: true,
-              cwd: './',
+              cwd: './app',
               src:['assets/*','!assets/*.psd'],
               dest: 'dev/'
           },{
             expand: true,
-            cwd: './html/',
+            cwd: './app/html/',
             src:['*'],
             dest:'./dev/'
           },{
             expand: true,
-            cwd: './',
+            cwd: './app',
             src: ['assets/fonts/*'],
             dest: 'dev/'
           }]
@@ -99,9 +99,9 @@ module.exports = function(grunt){
         },
         files: [{
           expand: true,
-          cwd: './sass',
+          cwd: './app/sass',
           src:['main.scss'],
-          dest: 'dev/css/',
+          dest: '.dev/css/',
           ext: '.css'
         }]
       },
@@ -111,7 +111,7 @@ module.exports = function(grunt){
         },
         files: [{
           expand: true,
-          cwd: './sass',
+          cwd: './app/sass',
           src:['main.scss'],
           dest: 'prod/app/css/',
           ext: '.css'
@@ -135,7 +135,7 @@ module.exports = function(grunt){
       options:{
         debug: true
       },
-      main: ['./js/**/*.js', '!./js/support/keypress.js', '!./js/support/SAT.min.js']
+      main: ['./app/js/**/*.js', '!./app/js/support/keypress.js', '!./app/js/support/SAT.min.js']
     },
     connect: {
       server: {
@@ -148,19 +148,19 @@ module.exports = function(grunt){
     },
     watch: {
       scripts: {
-        files:'./js/**/*.js',
+        files:'./app/js/**/*.js',
         tasks: ['jshint','browserify:dev']
       },
       sass: {
-        files: './sass/**/*.scss',
+        files: './app/sass/**/*.scss',
         tasks: ['sass:dev', 'autoprefixer:dev']
       },
       html: {
-        files: './html/*',
+        files: './app/html/*',
         tasks: ['copy:dev']
       },
       images: {
-        files: ['assets/*','!assets/*.psd'],
+        files: ['./app.assets/*','!./app/assets/*.psd'],
         tasks: ['copy:dev']
       }
     },
