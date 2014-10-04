@@ -1,0 +1,10 @@
+#!/bin/bash
+
+timestamp() {
+  date +"%T"
+}
+
+echo "----------------------------------------------" >> /root/logs/server_output.log
+echo "Stopping all Forever Processes -- $(timestamp)" >> /root/logs/server_output.log
+
+forever stopall >> /root/logs/server_output.log 2>&1 && return
